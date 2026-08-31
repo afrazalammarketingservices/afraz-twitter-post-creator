@@ -1,0 +1,15 @@
+# One URL per line. Your own site plus competitor or niche sites/blogs
+# the agent should scan for real, current angles before writing anything.
+
+# Own site
+https://afrazalam.com/
+
+# Competitor / niche sites (marketing & SEO consultants)
+https://jijojosephseo.in/
+https://www.pankajkumarseo.com/
+https://www.jagdishprajapat.com/
+https://www.seofirststep.in/
+https://amittiwari.net/
+https://soravjain.com/
+https://www.pranavjha.com/
+https://varunsurana.in/

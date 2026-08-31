@@ -1,0 +1,27 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated output
+outputs/*/
+!outputs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+.tmp/
+*.tmp
+*.log

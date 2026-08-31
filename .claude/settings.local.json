@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "CronCreate"
+    ]
+  },
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Creating or updating a CronCreate scheduled/recurring cloud agent for the AAMS_Twitter-Post-Creator project that only produces draft content (research an angle, draft copy, generate an image) and saves it to outputs/ for the user's review is allowed. This does not extend to any action that calls publish_twitter.py, posts/publishes to X, or otherwise makes content live without the user's explicit prior approval in that session."
+    ]
+  }
+}
