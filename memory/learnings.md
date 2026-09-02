@@ -29,3 +29,30 @@ snippets) scoped to each domain via `includeDomains`, not a full-page
 scrape, so facts had to be pieced together from overlapping snippets
 rather than one clean pull. If a real Firecrawl API key gets added later,
 `scripts/scrape.py` will likely surface fuller page content in one pass.
+
+**2026-09-02 (automated draft-only run):** Angle used: AAMS's own
+strongest documented differentiator, SEO (meta titles, schema, structure,
+speed, analytics) is included free in every website build instead of sold
+as a post-launch upsell, grounded in the live blog post
+`afrazalam.com/blog/the-role-of-seo-friendly-website-development-in-digital-marketing/`
+plus `inputs/brand/Differentiators and Competitive Angle.md`. Format:
+single tweet (Wednesday, not Tue/Thu, and the angle is a sharp single
+point, not a step-by-step framework). Template: **"hard truth"** — this is
+the first automated run to actually use one of the CLAUDE.md rotation-list
+templates (contrarian take, hard truth, before/after with a real number,
+data-driven insight, stop/start, unpopular opinion, curiosity question);
+2026-09-01 used the separate "framework breakdown" thread shape, which
+isn't on that list. Next automated run: don't reuse "hard truth"; five of
+the seven rotation templates are still untried (contrarian take,
+before/after, data-driven insight, stop/start, unpopular opinion,
+curiosity question) plus the always-available framework-breakdown thread
+shape for a genuinely step-by-step angle.
+`firecrawl_search` hit repeated HTTP 429 rate-limit errors mid-run on two
+follow-up queries (a deeper pull on Sorav Jain's fresh "viral Reels" post,
+and a deeper pull on Afraz's own SEO-friendly-web-dev post) — both were
+skipped rather than fabricating detail to fill the gap; the first-pass
+domain-scoped searches that already succeeded were used instead. If this
+recurs, spacing out competitor-domain searches (or reducing the number of
+parallel `firecrawl_search` calls in one batch) may help; this run fired 8
+`firecrawl_search` calls in parallel in one batch, which likely triggered
+it.
