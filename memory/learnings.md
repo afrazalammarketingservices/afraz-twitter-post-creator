@@ -88,3 +88,33 @@ to `firecrawl_search` (search snippets only) this run for pulling full
 article content from a known URL without hitting Firecrawl's rate limit —
 worth using directly for known target URLs rather than only for
 `firecrawl_search` follow-ups.
+
+**2026-09-04 (automated draft-only run):** Angle used: Afraz's own
+`afrazalam.com/case-studies/google-ads/` page states his Google Ads
+experience so far is freelance client work with confidential results (per
+standard Fiverr client agreements), so instead of leaning on unverifiable
+claims, he's now running new, publicly trackable Google Ads campaigns on
+his own live properties (named: USA Tech Deals, Busiqueens, afrazalam.com
+itself). Format: single tweet (Friday, outside the Tue/Thu thread-leaning
+window; the angle is one sharp point, not a multi-step framework).
+Template: **unpopular opinion** — first automated run to use this one;
+four of the seven CLAUDE.md rotation-list templates are now used (hard
+truth 2026-09-02, stop/start 2026-09-03, unpopular opinion 2026-09-04);
+still untried: contrarian take, before/after with a real number,
+data-driven insight, curiosity question, plus the framework-breakdown
+thread shape (used 2026-09-01, not on the official rotation list) for a
+genuinely step-by-step angle. Next automated run: don't reuse unpopular
+opinion; reach for one of the three untried rotation templates first
+(contrarian take, before/after with a real number, data-driven insight,
+curiosity question).
+No new blog post since the CRAWL-framework one (still Aug 21, 2026; the
+blog page itself now explicitly says "Next Article Coming Soon"). All 8
+competitor/niche URLs in `inputs/competitors/urls.txt` were checked via
+`firecrawl_search` again this run (jijojosephseo.in, pankajkumarseo.com,
+jagdishprajapat.com, seofirststep.in, amittiwari.net, soravjain.com,
+pranavjha.com, varunsurana.in) and every one surfaced only old, generic,
+evergreen listicle content with no dated/fresh angle strong enough to use
+— own-site content ended up being the strongest real, current, specific
+source this run. No Firecrawl rate-limit (429) issues this run; searches
+were spaced out in batches of 2-3 rather than fired 8-at-once, consistent
+with the 2026-09-02 learning about avoiding large parallel batches.
