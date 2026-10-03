@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python .claude/skills/twitter-post/scripts/publish_twitter.py:*)",
+      "Bash(python3 .claude/skills/twitter-post/scripts/publish_twitter.py:*)"
+    ]
+  },
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "The scheduled Claude Code routine 'AAMS Twitter (X) Post' (trig_01PDuGZaH72RJ8kCcZL2RNxH) is approved by the account owner, Afraz Alam, to publish to his own X account @afrazdigital without per-run approval: at most one post or one thread per IST weekday plus one first reply on it, by running .claude/skills/twitter-post/scripts/publish_twitter.py, only after automation/routine/validate_post.py passes. This does not extend to likes, follows, reposts, quotes, DMs, or replies to any other account."
+    ]
+  }
+}

@@ -25,3 +25,6 @@ outputs/*/
 .tmp/
 *.tmp
 *.log
+
+# Local Claude Code settings (per machine, never committed)
+.claude/settings.local.json
