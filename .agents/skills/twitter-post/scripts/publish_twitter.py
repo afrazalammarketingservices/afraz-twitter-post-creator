@@ -81,9 +81,17 @@ def upload_media(api_v1, image_paths: list[str], alt_texts: list[str] | None = N
         media_ids.append(media.media_id)
         print(f"[publish] uploaded {path} -> media_id {media.media_id}")
         if i < len(alt_texts) and alt_texts[i]:
-            api_v1.create_media_metadata(media.media_id, alt_texts[i][:1000])
-            print(f"[publish] alt text set on media_id {media.media_id}")
+            # Alt text must never block the post: on failure, publish without it.
+            try:
+                api_v1.create_media_metadata(media.media_id, alt_texts[i][:1000])
+                print(f"[publish] alt text set on media_id {media.media_id}")
+            except Exception as e:  # noqa: BLE001
+                ALT_TEXT_FAILURES.append(f"media_id {media.media_id}: {type(e).__name__}")
+                print(f"[publish] ALT_TEXT_FAILED on media_id {media.media_id} ({type(e).__name__}), publishing without alt text")
     return media_ids
+
+
+ALT_TEXT_FAILURES: list[str] = []
 
 
 def post_tweet(client_v2, text: str, media_ids: list[str] | None = None, in_reply_to: str | None = None) -> dict:
@@ -166,6 +174,7 @@ def main() -> None:
         "published_at": datetime.now().isoformat(),
         "slug": args.slug,
         "tweets": results,
+        "alt_text_failed": ALT_TEXT_FAILURES,
     }
     existing = []
     if log_path.exists():
@@ -180,6 +189,8 @@ def main() -> None:
 
     print(f"[publish] logged to {log_path}")
     print(f"[publish] live: {results[0]['url']}")
+    if ALT_TEXT_FAILURES:
+        print(f"[publish] ALT_TEXT_FAILED: post is live without alt text ({'; '.join(ALT_TEXT_FAILURES)})")
 
 
 if __name__ == "__main__":

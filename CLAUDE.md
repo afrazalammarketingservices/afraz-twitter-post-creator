@@ -60,7 +60,11 @@ thread", or `/twitter-post`:
 The skill is self-learning. It reads `memory/learnings.md` at the start of
 every run and applies past learnings. It appends new ones after every run.
 
-## Autonomous Daily Posting (enabled 2026-09-08, rebuilt 2026-09-24)
+## Autonomous Daily Posting (enabled 2026-09-08, rebuilt 2026-09-24, moved to a Claude Code routine 2026-10-03)
+
+> As of 2026-10-03 the scheduled path is the Claude Code routine **AAMS X
+> Post**, not Modal. See the last bullet of this section and
+> `docs/X-ROUTINE-MIGRATION.md`. The Modal notes below are history.
 
 The user explicitly overrode the Step 5 approval gate for the **scheduled
 Monday-Friday job only** (2026-09-08), then handed Claude a detailed
@@ -184,16 +188,18 @@ tracks how each rule maps to code and what had to be adapted.
 - **To pause or stop:** tell Claude to cancel the scheduled job, or run
   `modal app stop twitter-post-automation` directly. Reverting to
   manual-only is a one-line ask, not a re-negotiation.
-- **PAUSED as of 2026-10-01, explicit user instruction.** User said to
-  stop publishing entirely "until my next command" - ran
-  `modal app stop twitter-post-automation --yes`, confirmed via
-  `modal app list` (shows `stopped`, 0 tasks). No scheduled fire will
-  happen in this state. **To resume: redeploy with
-  `modal deploy automation/modal_app.py`** (re-registers the Mon-Fri 8:30
-  PM IST schedule) - only do this when the user explicitly asks to
-  restart, not proactively. Do not reason your way into resuming this on
-  your own judgment even if it seems like a long time has passed; the
-  user said they'd say when.
+- **Publishing moved to Claude Code routine AAMS X Post on 2026-10-03;
+  Modal app twitter-post-automation retired, keep stopped.** Never run
+  `modal deploy` or `modal run` for it and never delete it. The routine
+  (`trig_01PDuGZaH72RJ8kCcZL2RNxH`, `CRON_TZ=Asia/Kolkata 50 19 * * 1-5`,
+  publishes 8:30 PM IST, hard stop 9:30 PM IST) runs in the environment
+  "AAMS Twitter (X)" (Network Full, only the 4 `X_*` variables). It was
+  created disabled and is enabled only by Afraz after dry-run approval.
+  Never attach it to the FIND N FORM environment or any other business's
+  environment. Everything above this bullet describes the retired Modal
+  pipeline and is kept for history; the live spec is
+  `docs/X-ROUTINE-MIGRATION.md` and `automation/routine/ROUTINE-PROMPT.md`,
+  with state in `memory/x-post-log.md`.
 
 ## The 7-Step Flow
 

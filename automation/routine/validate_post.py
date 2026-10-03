@@ -292,6 +292,9 @@ def main(path: str) -> int:
                 errors.append("manifest variant/layout does not match draft")
             if man.get("headline") != image.get("headline") or man.get("labels") != labels:
                 errors.append("rendered image text does not match the approved image text")
+            has_example = any(v.get("kind") == "example" for v in (draft.get("numbers") or {}).values())
+            if has_example and "Example" not in (man.get("rendered_text") or []):
+                errors.append("a number is logged as a worked example, so the image must show the 'Example' label; re-render")
             if not man.get("fit_ok"):
                 errors.append(f"text clipped or out of safe area: {man.get('fit_issues')}")
             if man.get("min_font_px", 0) < 34:

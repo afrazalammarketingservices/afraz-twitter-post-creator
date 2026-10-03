@@ -27,7 +27,7 @@ Steps, in order:
 5. Draft. Create a NEW folder outputs/<IST date>_<slug>/ (add -2, -3 if it exists) and write draft.json in the exact shape documented at the top of automation/routine/validate_post.py: date_ist, day, reader, format, topic, topic_key, parts, sources, numbers, first_reply {source_url, cta}, image (or null).
    Writing rules: first line under 100 characters and it is a number with a source, a specific mistake, or a cost. Single post 230 to 250 weighted characters, hard max 280. Thread 4 to 6 parts, each under 280, part 1 stands alone, no "1/5" style hook words like "thread". One idea per sentence, active voice, numerals, at least one concrete example (a job, a store, a campaign setting). 0 hashtags by default, 1 at most. Close with a genuine question only when it fits. first_reply.cta must be one line from CTA_REPLY_VARIANTS in automation/pipeline.py, not the same one as the last PUBLISHED row in memory/x-post-log.md. first_reply.source_url is the main primary source URL, or null.
 
-6. Image days only. Fill draft.json "image": layout (rotate comparison, stat_grid, before_after, checklist, single_stat; not the same as the last image row in the log), variant (alternate dark and light), headline (max 48 chars), labels (max 3, each max 32 chars), alt_text describing what the image shows. Every word and number on the image must also be approved post copy and covered by "numbers". Then:
+6. Image days only. Fill draft.json "image": layout (rotate comparison, stat_grid, before_after, checklist, single_stat; not the same as the last image row in the log), variant (alternate dark and light), headline (max 48 chars), labels (max 3, each max 32 chars), alt_text describing what the image shows. Every word and number on the image must also be approved post copy and covered by "numbers". If any number is logged as a worked example (kind "example"), the renderer adds a small "Example" label to the image automatically and the validator requires it; say the figures are illustrative in the alt text too. Then:
    python automation/routine/render_image.py outputs/<folder>/draft.json
    Read the rendered image.png and preview_mobile.png yourself and check the text, logo and nothing clipped.
 
@@ -44,6 +44,7 @@ Steps, in order:
    Thread: write outputs/<folder>/thread.json (JSON array of the parts) and run
    python .claude/skills/twitter-post/scripts/publish_twitter.py --thread-file outputs/<folder>/thread.json --slug <folder slug> [--images ... --alt-text ...]
    If the command errors, times out, or the result is unclear: first run python automation/routine/recent_posts.py --recent 10 and check whether the post already went out. Only retry if it is clearly absent. Never retry blind. Never publish a second copy.
+   Alt text never blocks the post. If the output contains ALT_TEXT_FAILED, the post is already live without alt text: do NOT delete or repost it. Carry on, put ALT_TEXT_FAILED in the Notes column in step 12, and open a GitHub issue titled "ALT_TEXT_FAILED: <IST date> <post id>".
 
 10. First reply, within 2 minutes, exactly one, on the LAST part's ID (the single post itself, or the final thread part):
    With a source: python .claude/skills/twitter-post/scripts/publish_twitter.py --text "Source: <source_url>
@@ -53,7 +54,7 @@ Steps, in order:
 
 11. Verify: python automation/routine/recent_posts.py --id <post id>. It must report exists true.
 
-12. Log and save. Append one row to memory/x-post-log.md: IST date, Day, Reader, Format, Image layout (or "text"), Topic, Topic key, Sources (name + URL + date, separated by "; "), Post ID, Permalink, CTA variant, Status (PUBLISHED or NEEDS_AFRAZ). Then:
+12. Log and save. Append one row to memory/x-post-log.md: IST date, Day, Reader, Format, Image layout (or "text"), Topic, Topic key, Sources (name + URL + date, separated by "; "), Post ID, Permalink, CTA variant, Status (PUBLISHED or NEEDS_AFRAZ), Notes (ALT_TEXT_FAILED if it happened, else empty). Then:
    git add memory/x-post-log.md && git commit -m "X post <IST date>: <status>" && git push
    (outputs/ is gitignored, that is expected.)
    On any NEEDS_AFRAZ or failure, also open a GitHub issue titled "NEEDS_AFRAZ: <IST date> <short reason>" with gh issue create if gh is available and authenticated; if it is not, say so in your final report.

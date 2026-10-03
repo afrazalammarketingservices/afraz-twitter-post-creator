@@ -105,7 +105,17 @@ def body_for(layout: str, headline: str, labels: list[str]) -> str:
     raise ValueError(f"unknown layout {layout}")
 
 
-def page(layout: str, variant: str, headline: str, labels: list[str]) -> tuple[str, str]:
+EXAMPLE_TAG = "Example"
+
+
+def has_worked_example(draft: dict) -> bool:
+    """True when any number in the draft is logged as a worked example rather
+    than a sourced fact. The image must then carry the EXAMPLE_TAG so a reader
+    never mistakes illustrative math for a real benchmark."""
+    return any(v.get("kind") == "example" for v in (draft.get("numbers") or {}).values())
+
+
+def page(layout: str, variant: str, headline: str, labels: list[str], example_tag: bool = False) -> tuple[str, str]:
     c = THEMES[variant]
     logo, logo_sha = logo_html(variant)
     css = f"""
@@ -138,8 +148,12 @@ def page(layout: str, variant: str, headline: str, labels: list[str]) -> tuple[s
     .footer {{ height: 170px; display: flex; align-items: flex-end; justify-content: center; flex: none; }}
     .logo {{ overflow: hidden; }}
     .logo img {{ display: block; }}
+    .tag {{ align-self: flex-start; font-size: 38px; font-weight: 600; letter-spacing: 1px; color: {c['muted']};
+            border: 3px solid {c['border']}; border-radius: 999px; padding: 6px 26px; margin-bottom: -28px; }}
     """
     body = body_for(layout, headline, labels)
+    if example_tag:
+        body = f'<div class="t tag">{EXAMPLE_TAG}</div>' + body
     doc = (f"<!doctype html><html><head><meta charset='utf-8'><style>{css}</style></head>"
            f"<body><div class='main'>{body}</div><div class='footer'>{logo}</div></body></html>")
     return doc, logo_sha
@@ -175,7 +189,8 @@ def render(draft_path: Path) -> dict:
     draft = json.loads(draft_path.read_text(encoding="utf-8"))
     img = draft["image"]
     out_dir = draft_path.parent
-    doc, logo_sha = page(img["layout"], img["variant"], img["headline"], img["labels"])
+    example_tag = has_worked_example(draft)
+    doc, logo_sha = page(img["layout"], img["variant"], img["headline"], img["labels"], example_tag)
     (out_dir / "image.html").write_text(doc, encoding="utf-8")
 
     with sync_playwright() as p:
@@ -198,6 +213,8 @@ def render(draft_path: Path) -> dict:
         "mobile_preview": rel(out_dir / "preview_mobile.png"),
         "layout": img["layout"], "variant": img["variant"],
         "headline": img["headline"], "labels": img["labels"],
+        "example_tag": example_tag,
+        "rendered_text": [img["headline"], *img["labels"]] + ([EXAMPLE_TAG] if example_tag else []),
         "logo_file": rel(LOGOS[img["variant"]]), "logo_sha256": logo_sha,
         "fit_ok": not fit["issues"], "fit_issues": fit["issues"], "min_font_px": fit["minFont"],
     }

@@ -489,3 +489,48 @@ evergreen listicle content with no dated/fresh angle strong enough to use
 source this run. No Firecrawl rate-limit (429) issues this run; searches
 were spaced out in batches of 2-3 rather than fired 8-at-once, consistent
 with the 2026-09-02 learning about avoiding large parallel batches.
+
+
+## 2026-10-03 - Publishing moved from Modal to the Claude Code routine AAMS X Post
+
+Per docs/X-ROUTINE-MIGRATION.md (owner instruction, 2026-10-03). The Modal
+app twitter-post-automation is retired and stays stopped; confirmed via
+`modal app history` (last deploy v2 on 2026-09-24, no redeploy after the
+2026-10-01 stop) and an empty `modal app list`.
+
+- Routine: AAMS X Post, `trig_01PDuGZaH72RJ8kCcZL2RNxH`,
+  `CRON_TZ=Asia/Kolkata 50 19 * * 1-5`, publishes 8:30 PM IST, hard stop
+  9:30 PM IST. Created disabled; Afraz enables it after reviewing the dry run.
+- Environment: "AAMS Twitter (X)", Network Full, only X_API_KEY,
+  X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_TOKEN_SECRET. **Mistake to never
+  repeat:** at creation Claude attached the routine to env_018CctV7k4y3PMrdnNvWdHXP
+  believing it was "Default" from an old listing label; it was the FIND N
+  FORM environment. Afraz caught it and moved it. Never pick an environment
+  by an old or generic label; confirm which business it belongs to, and
+  never touch a routine's environment once Afraz has set it (a partial
+  update to job_config can overwrite environment_id).
+- State moved from the Modal Dict to memory/x-post-log.md (idempotency,
+  30-day topic check, CTA rotation, weekly mix). Notes column carries
+  non-blocking flags such as ALT_TEXT_FAILED.
+- No Gemini. Images are HTML + headless Chromium (automation/routine/
+  render_image.py), 1200x1200, original logo bytes embedded and checked by
+  SHA-256. Its text auto-fit check first flagged Poppins glyph overhang as
+  clipping and shrank every headline to minimum size; the tolerance now
+  scales with font size. Always look at the rendered PNG, not just the
+  fit report.
+- Validator (automation/routine/validate_post.py) uses X's weighted count
+  (twitter-text-parser, which needs setuptools<81 for pkg_resources). It
+  was proven against 9 deliberately broken drafts, not just passing ones.
+- Owner fixes after the dry run review (2026-10-03):
+  1. Any worked-example number means the image must carry an "Example"
+     label; the renderer adds it and the validator enforces it.
+  2. Posts land at 11 AM ET, so never write "tonight" in copy; say "today".
+  3. Alt text never blocks a post: publish_twitter.py publishes without
+     it if create_media_metadata fails, prints ALT_TEXT_FAILED, and the
+     routine logs it and opens a GitHub issue.
+- Platform news needs an announced date from an official dated source.
+  The Wednesday dry-run thread (Local Services Ads moving into Performance
+  Max) had an undated official help page, so it was framed as an ongoing
+  rollout rather than "this week's news".
+- Git: the auto-mode classifier blocked commit/push once in this session;
+  when that happens, hand Afraz the exact commands instead of retrying.

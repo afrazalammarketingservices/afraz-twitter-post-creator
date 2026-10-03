@@ -62,6 +62,12 @@ every run and applies past learnings. It appends new ones after every run.
 
 ## Autonomous Daily Posting (enabled 2026-09-08)
 
+> As of 2026-10-03 publishing moved to the Claude Code routine **AAMS X
+> Post**; the Modal app twitter-post-automation is retired and must stay
+> stopped (never `modal deploy` or `modal run` it). CLAUDE.md and
+> `docs/X-ROUTINE-MIGRATION.md` are the current spec. The Modal notes
+> below are history.
+
 The user explicitly overrode the Step 5 approval gate for the **scheduled
 Monday-Friday cron job only**, after being shown the tradeoff (see
 `memory/learnings.md` entry dated 2026-09-08 for the full context: only 8
