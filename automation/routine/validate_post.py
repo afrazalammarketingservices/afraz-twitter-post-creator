@@ -238,20 +238,31 @@ def main(path: str) -> int:
             warns.append(f"{day} default is text only")
     if fmt == "thread" and day != "Wed":
         warns.append("threads are planned for Wednesday")
+    # Weekly mix: only the current Monday to Sunday IST week, and manual
+    # tests never count (they still count for the 30-day topic check above).
+    week = []
+    try:
+        monday = date.fromisoformat(draft.get("date_ist", ""))
+        monday -= timedelta(days=monday.weekday())
+        for r in published:
+            notes = r.get("notes", "").lower()
+            if "manual live test" in notes or "manual test" in notes:
+                continue
+            try:
+                d = date.fromisoformat(r.get("ist date", ""))
+            except ValueError:
+                continue
+            if monday <= d <= monday + timedelta(days=6):
+                week.append(r)
+    except ValueError:
+        pass
+    info["week_mix"] = {
+        "image": sum(1 for r in week if r.get("image layout", "text") != "text"),
+        "text": sum(1 for r in week if r.get("image layout", "text") == "text"),
+        "thread": sum(1 for r in week if r.get("format") == "thread"),
+    }
     if fmt == "thread":
-        week_threads = 0
-        try:
-            today = date.fromisoformat(draft.get("date_ist", ""))
-            monday = today - timedelta(days=today.weekday())
-            for r in published:
-                try:
-                    d = date.fromisoformat(r.get("ist date", ""))
-                except ValueError:
-                    continue
-                if monday <= d <= today and r.get("format") == "thread":
-                    week_threads += 1
-        except ValueError:
-            pass
+        week_threads = info["week_mix"]["thread"]
         if week_threads >= 1:
             errors.append("a thread was already published this week, max 1")
 
