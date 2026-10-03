@@ -5,7 +5,7 @@ description: Research a real angle, write a tweet or thread in the user's brand 
 
 # X (Twitter) Post Creator
 
-Read `CLAUDE.md` at the repo root before running this skill if you haven't
+Read `AGENTS.md` at the repo root before running this skill if you haven't
 already this session. It has the full operating rules, the X-specific copy
 rules, and the list of things this kit deliberately does not do. This file
 is the step-by-step execution flow.
@@ -14,7 +14,7 @@ is the step-by-step execution flow.
 
 Run:
 ```
-python .claude/skills/twitter-post/scripts/scrape.py
+python .Codex/skills/twitter-post/scripts/scrape.py
 ```
 This pulls fresh content from the user's own site and every URL in
 `inputs/competitors/urls.txt` via Firecrawl, and writes the findings to
@@ -37,7 +37,7 @@ the user and wait for approval or redirection before writing any copy.
 ## Step 3: Copy
 
 Read `inputs/brand/` for voice notes. If empty, fall back to the Voice
-Defaults and X Copy Rules in `CLAUDE.md`. Read `memory/learnings.md` and
+Defaults and X Copy Rules in `AGENTS.md`. Read `memory/learnings.md` and
 apply anything relevant.
 
 Draft the copy:
@@ -71,7 +71,7 @@ left open.
 
 Run:
 ```
-python .claude/skills/twitter-post/scripts/generate_image.py --prompt "<image concept>" --slug "<slug>" --index 1 [--ratio 16:9|1:1|4:5]
+python .Codex/skills/twitter-post/scripts/generate_image.py --prompt "<image concept>" --slug "<slug>" --index 1 [--ratio 16:9|1:1|4:5]
 ```
 Default ratio is 16:9 (1200x675), X's standard post image. Use the brand
 colors/fonts from `inputs/brand/` and any style reference in
@@ -96,13 +96,13 @@ or Step 4 as needed and show the approval gate again.
 
 Single tweet:
 ```
-python .claude/skills/twitter-post/scripts/publish_twitter.py --text "<final copy>" --images outputs/<date>_<slug>/image_1.png --slug "<slug>"
+python .Codex/skills/twitter-post/scripts/publish_twitter.py --text "<final copy>" --images outputs/<date>_<slug>/image_1.png --slug "<slug>"
 ```
 
 Thread: write the approved thread to `outputs/<date>_<slug>/thread.json` as
 a JSON array of strings (one per tweet, in order), then run:
 ```
-python .claude/skills/twitter-post/scripts/publish_twitter.py --thread-file outputs/<date>_<slug>/thread.json --images outputs/<date>_<slug>/image_1.png --slug "<slug>"
+python .Codex/skills/twitter-post/scripts/publish_twitter.py --thread-file outputs/<date>_<slug>/thread.json --images outputs/<date>_<slug>/image_1.png --slug "<slug>"
 ```
 The image attaches to the first tweet in the thread only.
 
@@ -123,7 +123,7 @@ so replying to any early comments personally in that window is the single
 highest-leverage thing they can do right now. Staying active through the
 first hour still helps, but the first 15 minutes is where it's decided.
 This kit does not do that step for them, on purpose, see "What This Kit
-Does Not Do" in `CLAUDE.md`.
+Does Not Do" in `AGENTS.md`.
 
 ## After every run
 
