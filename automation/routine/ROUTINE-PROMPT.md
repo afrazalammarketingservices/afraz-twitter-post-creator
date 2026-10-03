@@ -15,7 +15,9 @@ Steps, in order:
 1. Setup:
    pip install -q -r automation/routine/requirements.txt && python -m playwright install --with-deps chromium
 
-2. Date and idempotency:
+2. Sync state from main, then date and idempotency. The session may be on a branch other than main; state must always come from main:
+   git fetch origin main && git checkout origin/main -- memory/
+   From here on, memory/x-post-log.md and memory/learnings.md are the main versions. Use them for every check below (once-a-day, 30-day topics, CTA rotation, weekly mix).
    python automation/routine/ist_clock.py now
    If weekday is false, stop: report "Weekend, nothing to do."
    If memory/x-post-log.md already has a row with today's IST date and status PUBLISHED, stop: report "Already published today." Never publish twice.
@@ -54,8 +56,12 @@ Steps, in order:
 
 11. Verify: python automation/routine/recent_posts.py --id <post id>. It must report exists true.
 
-12. Log and save. Append one row to memory/x-post-log.md: IST date, Day, Reader, Format, Image layout (or "text"), Topic, Topic key, Sources (name + URL + date, separated by "; "), Post ID, Permalink, CTA variant, Status (PUBLISHED or NEEDS_AFRAZ), Notes (ALT_TEXT_FAILED if it happened, else empty). Then:
-   git add memory/x-post-log.md && git commit -m "X post <IST date>: <status>" && git push
+12. Log and save. Append one row to memory/x-post-log.md: IST date, Day, Reader, Format, Image layout (or "text"), Topic, Topic key, Sources (name + URL + date, separated by "; "), Post ID, Permalink, CTA variant, Status (PUBLISHED or NEEDS_AFRAZ), Notes (ALT_TEXT_FAILED if it happened, else empty). Then save it to main:
+   git add memory/x-post-log.md && git commit -m "X post <IST date>: <status>"
+   git fetch origin main && git rebase origin/main
+   (memory/x-post-log.md and memory/learnings.md use merge=union in .gitattributes, so the rebase should not conflict. After the rebase, confirm today's row appears exactly once in memory/x-post-log.md; if it is duplicated, delete the extra copy, git add, and git rebase --continue or git commit --amend.)
+   git push origin HEAD:main
+   If the push to main is refused or fails after one fresh fetch + rebase + retry: push to the session branch instead (git push origin HEAD), then open a GitHub issue titled "NEEDS_AFRAZ: X log not on main <IST date>" with the full log row pasted in the issue body and the session branch name. If gh is unavailable, start the final report with "NEEDS_AFRAZ: X log not on main" and paste the full row there. A post must never be lost from the log silently.
    (outputs/ is gitignored, that is expected.)
    On any NEEDS_AFRAZ or failure, also open a GitHub issue titled "NEEDS_AFRAZ: <IST date> <short reason>" with gh issue create if gh is available and authenticated; if it is not, say so in your final report.
 
