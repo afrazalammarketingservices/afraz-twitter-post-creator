@@ -7,7 +7,7 @@ How to use this file:
 - Never name or describe any business that was checked. Never invent extra numbers.
 - After you publish an idea, change its status line for your platform to "USED <date>" in the same commit as your log row. Use each idea at most once per platform.
 
-## 2026-10-29 | LinkedIn: UNUSED | X: UNUSED
+## 2026-10-29 | LinkedIn: UNUSED | X: USED 2026-10-29
 Brief fit: LinkedIn Monday (one lesson from real work) or Friday. X any weekday.
 Idea: Great reviews, leaky websites.
 Facts (Afraz's own check of 10 Phoenix, AZ HVAC company websites on 28 Oct 2026. Ratings from Google Maps. Mobile scores from Google Lighthouse mobile lab tests run on 28 Oct 2026; lab scores vary from run to run):
