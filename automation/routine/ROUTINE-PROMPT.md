@@ -28,31 +28,31 @@ Steps, in order:
 
    Afraz's ideas queue, added 29 Oct 2026 with Afraz's approval: before step 4, read memory/afraz-ideas.md. If an idea marked X: UNUSED fits today's plan, use it as today's topic. Its facts are Afraz's own first-hand checks and count as verified sources: cite them as that file says, with publisher Afraz Alam Marketing Services, url https://afrazalam.com/ and the check date, and use the fact lines in their own wording. Never name or describe a business that was checked, never add numbers that are not in the file, and still apply the 30-day topic check. After publishing, change that idea's status to X: USED with the IST date and commit memory/afraz-ideas.md together with the log row. If no unused idea fits, research as usual.
    
-5. Research with WebSearch and WebFetch (and Firecrawl if available). Confirm every fact on the primary source page itself and note the exact wording, URL and published or announced date. If you cannot verify a number, do not use it. If there is no strong verified news for a news day, write an evergreen diagnostic instead.
+4. Research with WebSearch and WebFetch (and Firecrawl if available). Confirm every fact on the primary source page itself and note the exact wording, URL and published or announced date. If you cannot verify a number, do not use it. If there is no strong verified news for a news day, write an evergreen diagnostic instead.
 
-6. Draft. Create a NEW folder outputs/<IST date>_<slug>/ (add -2, -3 if it exists) and write draft.json in the exact shape documented at the top of automation/routine/validate_post.py: date_ist, day, reader, format, topic, topic_key, parts, sources, numbers, first_reply {source_url, cta}, image (or null).
+5. Draft. Create a NEW folder outputs/<IST date>_<slug>/ (add -2, -3 if it exists) and write draft.json in the exact shape documented at the top of automation/routine/validate_post.py: date_ist, day, reader, format, topic, topic_key, parts, sources, numbers, first_reply {source_url, cta}, image (or null).
    Writing rules: first line under 100 characters and it is a number with a source, a specific mistake, or a cost. Single post 230 to 250 weighted characters, hard max 280. Thread 4 to 6 parts, each under 280, part 1 stands alone, no "1/5" style hook words like "thread". One idea per sentence, active voice, numerals, at least one concrete example (a job, a store, a campaign setting). 0 hashtags by default, 1 at most. Close with a genuine question only when it fits. first_reply.cta must be one line from CTA_REPLY_VARIANTS in automation/pipeline.py, not the same one as the last PUBLISHED row in memory/x-post-log.md. first_reply.source_url is the main primary source URL, or null.
 
-7. Image days only. Fill draft.json "image": layout (rotate comparison, stat_grid, before_after, checklist, single_stat; not the same as the last image row in the log), variant (alternate dark and light), headline (max 48 chars), labels (max 3, each max 32 chars), alt_text describing what the image shows. Every word and number on the image must also be approved post copy and covered by "numbers". If any number is logged as a worked example (kind "example"), the renderer adds a small "Example" label to the image automatically and the validator requires it; say the figures are illustrative in the alt text too. Then:
+6. Image days only. Fill draft.json "image": layout (rotate comparison, stat_grid, before_after, checklist, single_stat; not the same as the last image row in the log), variant (alternate dark and light), headline (max 48 chars), labels (max 3, each max 32 chars), alt_text describing what the image shows. Every word and number on the image must also be approved post copy and covered by "numbers". If any number is logged as a worked example (kind "example"), the renderer adds a small "Example" label to the image automatically and the validator requires it; say the figures are illustrative in the alt text too. Then:
    python automation/routine/render_image.py outputs/<folder>/draft.json
    Read the rendered image.png and preview_mobile.png yourself and check the text, logo and nothing clipped.
 
-8. Validate:
+7. Validate:
    python automation/routine/validate_post.py outputs/<folder>/draft.json
    If it fails, fix ONLY the failing part with a surgical edit (do not rewrite the whole post), re-render if the image changed, and validate again. Maximum 2 fix rounds. If it still fails: publish nothing, go to step 12 with status NEEDS_AFRAZ and the validator errors as the reason.
 
-9. Wait for the slot (skip this whole step in a manual test and go straight to step 9):
+8. Wait for the slot (skip this whole step in a manual test and go straight to step 9):
    python automation/routine/ist_clock.py wait --until 20:30 --deadline 21:30
    Exit 3 means run the same command again. Exit 4 means past 9:30 PM IST: publish nothing, step 12 with NEEDS_AFRAZ "missed 9:30 PM hard stop". Exit 0 means publish now.
 
-10. Publish (once). Single post:
+9. Publish (once). Single post:
    python .claude/skills/twitter-post/scripts/publish_twitter.py --text "<part 1>" --slug <folder slug> [--images outputs/<folder>/image.png --alt-text "<alt_text>"]
    Thread: write outputs/<folder>/thread.json (JSON array of the parts) and run
    python .claude/skills/twitter-post/scripts/publish_twitter.py --thread-file outputs/<folder>/thread.json --slug <folder slug> [--images ... --alt-text ...]
    If the command errors, times out, or the result is unclear: first run python automation/routine/recent_posts.py --recent 10 and check whether the post already went out. Only retry if it is clearly absent. Never retry blind. Never publish a second copy.
    Alt text never blocks the post. If the output contains ALT_TEXT_FAILED, the post is already live without alt text: do NOT delete or repost it. Carry on, put ALT_TEXT_FAILED in the Notes column in step 12, and open a GitHub issue titled "ALT_TEXT_FAILED: <IST date> <post id>".
 
-11. First reply, within 2 minutes, exactly one, on the LAST part's ID (the single post itself, or the final thread part):
+10. First reply, within 2 minutes, exactly one, on the LAST part's ID (the single post itself, or the final thread part):
    With a source: python .claude/skills/twitter-post/scripts/publish_twitter.py --text "Source: <source_url>
 
 <cta>" --in-reply-to <id> --slug <folder slug>
