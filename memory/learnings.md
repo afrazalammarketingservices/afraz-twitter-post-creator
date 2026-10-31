@@ -534,3 +534,12 @@ app twitter-post-automation is retired and stays stopped; confirmed via
   rollout rather than "this week's news".
 - Git: the auto-mode classifier blocked commit/push once in this session;
   when that happens, hand Afraz the exact commands instead of retrying.
+
+## 2026-10-31 - X reader changed to Shopify, D2C and ecommerce brands only
+
+Afraz changed his target market. From the next run, every X topic and post is written only for founders, owners and heads of marketing or growth at Shopify, D2C and ecommerce brands (roughly $10k to $200k a month in sales, already running Meta or Google ads), plus the ecommerce ads, CRO and tracking practitioners they follow. US first.
+
+- Any older entry above that mentions home-service owners, HVAC, plumbing, local SEO, Google Business Profile, Local Services Ads or cost per booked job is history. Do not use it to pick a topic or reader.
+- The day table in docs/X-ROUTINE-MIGRATION.md section 3 keeps the same weekdays and formats (Mon text, Tue image, Wed thread or single, Thu image, Fri text); only the reader and briefs changed.
+- Seasonality is a tiebreaker only: Nov BFCM readiness, Dec shipping cut-offs and post-BFCM retargeting, Jan post-holiday audit.
+- Schedule, validator, images, first-reply rule and the log flow are unchanged.

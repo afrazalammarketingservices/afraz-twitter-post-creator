@@ -34,15 +34,17 @@ This file is the owner's explicit instruction (given 2026-10-03) to replace the 
 
 ## 3. What to post each day
 
-Readers: owners of home-service businesses (HVAC, plumbing, electrical, roofing) and founders of D2C / e-commerce / Shopify brands. US first in examples, platforms and spelling. Coaches and other segments are not readers.
+Readers (changed 2026-10-31 by Afraz, the only reader from now on): founders, owners and heads of marketing or growth at Shopify, D2C and ecommerce brands, roughly $10k to $200k a month in sales, already running Meta or Google ads, small team or owner-led marketing. Also the ecommerce ads, CRO and tracking practitioners these founders follow on X. US first in examples, platforms and spelling; UK, Canada, Australia and UAE are secondary. Their words: ROAS, break-even ROAS, CAC, MER, AOV, conversion rate, add to cart, checkout, product page, creative, Advantage+, Pixel, CAPI, GA4, Shopify, Merchant Center, retargeting, email capture. NOT readers, never write for them: home-service owners (HVAC, plumbing, electrical, roofing), local service businesses, coaches, consultants, Amazon-only sellers, dropshipping stores.
 
 | Day | Reader | Angle | Default format |
 |---|---|---|---|
-| Mon | Home-service | Local SEO or Google Business Profile check an owner can run in 10 minutes | Single post, text only |
-| Tue | D2C / Shopify | Meta Ads or tracking lesson (CAPI, Advantage+, creative, what to measure) | Single post + image |
-| Wed | Both | What changed this week in Google, Meta or AI search, and what to do about it. Thread (4 to 6 parts) only when depth is real, max 1 per week | Thread or single post |
-| Thu | Home-service | Google Ads / LSA math: cost per booked job, not cost per click | Single post + image |
-| Fri | D2C or both | Store conversion lesson, or an honest lesson from running the consultancy | Single post, text only |
+| Mon | D2C / Shopify | Lesson from real store work: a leak, a fix or a decision a Shopify or D2C founder can copy (tracking, landing page, ad account or offer) | Single post, text only |
+| Tue | D2C / Shopify | Conversion: where buyers drop on the product page, landing page, cart, checkout, offer, reviews or email capture | Single post + image |
+| Wed | D2C / Shopify | What changed this week in Meta, Google Ads, Google Shopping / Merchant Center, Shopify or AI search, and what a store owner should do about it. Thread (4 to 6 parts) only when depth is real, max 1 per week | Thread or single post |
+| Thu | D2C / Shopify | Measurement and ad spend: Pixel and CAPI, GA4 ecommerce events, revenue that does not match between Shopify, GA4 and Meta, break-even ROAS math, budget split, Shopping feed fixes | Single post + image |
+| Fri | D2C / Shopify | Opinion or behind-the-scenes from running a consultancy for D2C brands | Single post, text only |
+
+Seasonality (tiebreaker only, when two candidates are otherwise equal): Nov = BFCM tracking, offer and landing page readiness; Dec = holiday shipping cut-offs, last-minute ad budgets, post-BFCM retargeting; Jan = post-holiday audit, returns, CAC reset, planning the year.
 
 Mix target per week: 2 to 3 image posts, 2 to 3 text-only, at most 1 thread. Never repeat a topic used on X in the last 30 days (check `memory/x-post-log.md`).
 
@@ -52,10 +54,10 @@ Keep everything in `CLAUDE.md` "X Copy Rules" and the operating guide. Additions
 
 - First line under 100 characters: a number with a source, a specific mistake, or a cost. No "Just a thought", "Hear me out", "Interesting thread", no leading hashtag.
 - Single post target 230 to 250 characters, hard max 280 (X weighted count). Thread parts each under 280; part 1 must stand alone.
-- One idea per sentence. Active voice. Numerals. At least one concrete example (a job, a store, a campaign setting).
-- 0 hashtags by default, 1 at most.
+- One idea per sentence. Active voice. Numerals. At least one concrete example (a product page, a store, a campaign setting).
+- 0 hashtags by default, 1 at most. If one is used, D2C / ecommerce tags only, for example #Shopify #DTC #Ecommerce #MetaAds.
 - No link in the post body, ever. The first reply (within 2 minutes of publishing) carries the source link if there is one, then one line from `CTA_REPLY_VARIANTS` in `automation/pipeline.py` (rotate, never the same one 2 days running).
-- Every number needs a named primary source, logged with its URL and date. Platform news only from official sources (Google Search Central, Google Ads, Meta, GA4, X), with the announced date checked.
+- Every number needs a named primary source, logged with its URL and date. Platform news only from official sources (Shopify changelog and Shopify news, Meta for Business news and Meta Business Help Center, Google Ads Help and Ads Developer blog, Google Merchant Center Help, Google Search Central, GA4, X), with the announced date checked.
 - Read `inputs/brand/Voice and Messaging Bank.md`, `inputs/brand/ICP and Target Industries.md` and `memory/learnings.md` before drafting.
 
 ## 5. Images (no Gemini)

@@ -2,7 +2,7 @@
 
 ## Purpose and audience
 
-Publish useful X content for @afrazdigital, Afraz Alam's digital marketing consultancy. Priority readers are owners and marketers of small and medium businesses, especially US home-service businesses, plus potential referral partners. Show how SEO, local SEO, Google Ads, Meta Ads, websites, conversion, measurement and practical AI marketing connect to qualified inquiries, calls, booked work and revenue. Explain useful decisions, not generic marketing news. Never promise results or invent client outcomes.
+Publish useful X content for @afrazdigital, Afraz Alam's digital marketing consultancy. The only readers (since 2026-10-31) are founders, owners and heads of marketing or growth at Shopify, D2C and ecommerce brands, US first, plus the ecommerce ads, CRO and tracking practitioners they follow. Home-service and other local businesses, coaches, consultants, Amazon-only sellers and dropshipping stores are not readers. Show how conversion tracking (GA4, GTM, Meta Pixel, Conversions API), landing and product pages, Meta and Google ads (including Google Shopping and Merchant Center), ecommerce SEO and AI search visibility connect to orders, AOV, CAC and revenue. Explain useful decisions, not generic marketing news. Never promise results or invent client outcomes.
 
 ## Locked schedule
 
@@ -17,7 +17,7 @@ Publish useful X content for @afrazdigital, Afraz Alam's digital marketing consu
 1. **Read state first.** Inspect the last 10-15 published posts and the topic log, current schedule, draft queue, source log, connected research tools and official logo assets. Avoid near duplicates, repeat hooks and a streak of the same platform. Do not publish a second post if today's slot has already succeeded.
 2. **Discover current candidates.** Check official announcements and documentation from Google Search Central, Google Ads, Meta, Google Analytics, X and other relevant platforms. Confirm the date announced, the date effective, availability by region/account and the exact feature or policy scope. Search current X posts and questions from credible practitioners and business owners. Distinguish discussion from actual prevalence; do not label a topic viral without evidence. Track the source URL and observed date.
 3. **Check demand.** Use Ubersuggest content ideas, keyword suggestions, keyword overview and related questions as relevant. Search volume and share estimates indicate broader interest, not live X trends. If a tool is unavailable, continue with other evidence and log the limitation. Never fabricate a Ubersuggest number.
-4. **Choose the business angle.** Form up to three candidates internally, scored by verified freshness, relevance to target clients, practical action, evidence quality and distance from recent posts. Choose the one that answers: "What should an owner or marketer check, change or measure because of this?" For US service businesses, make the implication concrete when appropriate. If no news has a strong angle, use an evergreen diagnostic or lesson. A routine weekday post must never depend on manufactured breaking news.
+4. **Choose the business angle.** Form up to three candidates internally, scored by verified freshness, relevance to target clients, practical action, evidence quality and distance from recent posts. Choose the one that answers: "What should an owner or marketer check, change or measure because of this?" For US Shopify and D2C stores, make the implication concrete when appropriate. If no news has a strong angle, use an evergreen diagnostic or lesson. A routine weekday post must never depend on manufactured breaking news.
 5. **Draft and verify.** Write one main idea in plain English. Preferred pattern: specific observation or change -> business implication -> practical check or action. Label a platform statement as fact only when the primary source supports it; keep interpretation distinct. Check spelling, precise technical terminology and any quoted data. No invented case study, fake screenshot, fabricated metric, exaggerated rollout, "10X" promise or guarantee. Avoid a forced question or sales CTA.
 6. **Select format.** Default to one standard post within 280 X characters, including spaces, line breaks and links as X counts them. Check with X's composer or actual publishing validation. For a genuine multi-step process, use a 4-6 part thread with each part adding a new point and fitting the standard limit; make the first part understandable by itself. No routine long Premium post. Add a relevant source link for platform news when it fits; link to afrazalam.com only when a specific real page extends the answer. Usually use no hashtag; at most one or two useful hashtags.
 7. **Create image when justified.** Follow the visual system below. Compose final text, diagrams and official logo deterministically after any generated background. Inspect at mobile size. Include accurate alt text. Text-only is valid and should remain part of the mix.
@@ -29,11 +29,11 @@ Use this as flexible coverage, never force a weak topic just to fill a category:
 
 | Day | Typical angle |
 | --- | --- |
-| Monday | SEO or local SEO diagnostic |
-| Tuesday | Google Ads or Meta Ads lesson |
-| Wednesday | Verified update, or a useful thread if depth warrants |
-| Thursday | Website conversion or measurement |
-| Friday | Business growth lesson, practical AI workflow or evergreen insight |
+| Monday | Lesson from real store work: a leak, fix or decision a Shopify or D2C founder can copy |
+| Tuesday | Conversion: product page, landing page, cart, checkout, offer, reviews or email capture |
+| Wednesday | Verified update in Meta, Google Ads, Shopping / Merchant Center, Shopify or AI search, or a useful thread if depth warrants |
+| Thursday | Measurement and ad spend: Pixel and CAPI, GA4 ecommerce events, revenue mismatch, break-even ROAS, budget split, Shopping feeds |
+| Friday | Opinion or behind-the-scenes from running a consultancy for D2C brands |
 
 ## Image production standard
 

@@ -5,6 +5,7 @@ How to use this file:
 - The posting routine reads this file before research. If an idea marked UNUSED for your platform fits today's brief, use it as today's topic instead of researching a new one.
 - Facts listed under an idea are Afraz's own first-hand checks. They count as sourced. In sources.json use: publisher "Afraz Alam Marketing Services", title "Afraz's own check", url "https://afrazalam.com/", the check date as date, and the exact fact line as quote. Use the facts in their own wording, never sharpen them.
 - Never name or describe any business that was checked. Never invent extra numbers.
+- X (since 2026-10-31): an idea must fit the D2C / Shopify / ecommerce reader to be used on X. Any other idea stays unused on X.
 - After you publish an idea, change its status line for your platform to "USED <date>" in the same commit as your log row. Use each idea at most once per platform.
 
 ## 2026-10-29 | LinkedIn: UNUSED | X: USED 2026-10-29

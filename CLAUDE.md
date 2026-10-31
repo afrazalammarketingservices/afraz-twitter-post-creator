@@ -315,8 +315,8 @@ specifically in the SEO/paid-ads/AI-marketing niche.
 - Rotate through templates (contrarian take, hard truth, before/after with
   a real number, data-driven insight, stop/start, unpopular opinion,
   curiosity question, **personal lesson or failure story** - added
-  2026-09-08, e.g. "I lost a client's budget before learning this one
-  thing" - vulnerability plus a specific, honest takeaway is a validated
+  2026-09-08, e.g. "The first thing I check on a Shopify store running
+  Meta ads is ..." - vulnerability plus a specific, honest takeaway is a validated
   2026 pattern and fits this brand's existing "honest numbers, not
   inflated claims" positioning). Never the same template twice in a row.
 
