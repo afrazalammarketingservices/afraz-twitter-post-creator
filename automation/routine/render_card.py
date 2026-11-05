@@ -19,7 +19,9 @@ draft["image"] shape (headline marks the highlighted words with [[...]]):
   checklist:    {"layout", "label", "headline", "sub", "rows": ["..."] (1 to 5)}
   before_after: {"layout", "label", "headline", "sub", "before", "now", "do"}
   steps:        {"layout", "label", "headline", "sub", "steps": ["..."] (exactly 3)}
-  thread_cover: {"layout", "label" (default "NEW GUIDE"), "headline", "sub"}
+  thread_cover: {"layout", "label" (default "NEW GUIDE"), "headline", "sub",
+                 "sections": ["..."] (3 to 5 short titles, the thread's parts),
+                 "sections_label": "areas" | "steps" (default "areas")}
   every layout: "source": "Publisher, page" (required when the card states a
   number or a platform rule: "rule": true), "alt_text": "One sentence."
 """
@@ -38,7 +40,7 @@ LAYOUTS = ("stat_cards", "checklist", "before_after", "steps", "thread_cover")
 IMAGE_LAYOUTS = ("stat_cards", "checklist", "before_after", "steps")  # Tuesday rotation
 
 LIMITS = {"headline_words": 9, "hl_min": 1, "hl_max": 3, "card": 60, "row": 60, "sub": 90,
-          "label": 24, "k": 12, "value": 18, "source": 110}
+          "label": 24, "k": 12, "section": 32, "value": 18, "source": 110}
 SAFE_LEFT, SAFE_RIGHT, CONTENT_BOTTOM = 70, 1010, 1230
 MIN_FONT, SOURCE_FONT = 26, 22
 FIXED_GLYPHS = {"↓"}  # the cover's "Read the thread" arrow, drawn by a fallback font as in the approved sample
@@ -57,6 +59,7 @@ CSS = (
     ".mk{display:inline-block;background:#15B5B0;color:#063831;border-radius:.16em;padding:0 .18em;margin:.06em 0}\n"
     ".sub{font-weight:500;color:#8FDCD9}"
     ".box{display:flex;align-items:center;background:rgba(255,255,255,.08);border:2px solid rgba(143,220,217,.35);border-radius:22px;padding:24px 30px;margin-top:20px}"
+    ".btn{display:inline-block;background:#15B5B0;color:#063831;font-weight:600;border-radius:12px}"
     ".pill{display:inline-block;background:#FFD60A;color:#1F2937;font-weight:600;border-radius:40px;padding:10px 26px}"
     ".tick{flex:none;width:46px;height:46px;border-radius:50%;background:#15B5B0;position:relative;margin-right:26px}"
     ".tick:after{content:'';position:absolute;left:16px;top:9px;width:11px;height:21px;border:solid #063831;border-width:0 5px 5px 0;transform:rotate(45deg)}"
@@ -82,6 +85,10 @@ def plain_headline(h: str) -> str:
     return HL.sub(r"\1", h)
 
 
+def box_title(img: dict) -> str:
+    return f"THE {len(img.get('sections', []))} {(img.get('sections_label') or 'areas').upper()}"
+
+
 def card_texts(img: dict) -> list[tuple[str, str]]:
     """(kind, text) for every text on the card except logo, footer and source."""
     out = [("label", img.get("label") or ("NEW GUIDE" if img.get("layout") == "thread_cover" else "")),
@@ -96,6 +103,8 @@ def card_texts(img: dict) -> list[tuple[str, str]]:
         out += [("row", r) for r in img.get("steps", [])]
     elif lay == "before_after":
         out += [("row", img.get(k, "")) for k in ("before", "now", "do")]
+    elif lay == "thread_cover":
+        out += [("boxtitle", box_title(img))] + [("section", t) for t in img.get("sections", [])]
     return [(k, t) for k, t in out if t]
 
 
@@ -123,6 +132,11 @@ def check_limits(img: dict) -> list[str]:
         errs.append("checklist needs 1 to 5 rows")
     if lay == "steps" and len(img.get("steps", [])) != 3:
         errs.append("steps needs exactly 3 rows")
+    if lay == "thread_cover":
+        if not 3 <= len(img.get("sections", [])) <= 5:
+            errs.append("thread_cover needs 3 to 5 sections")
+        if (img.get("sections_label") or "areas") not in ("areas", "steps"):
+            errs.append("sections_label must be 'areas' or 'steps'")
     if lay == "before_after" and not all(img.get(k) for k in ("before", "now", "do")):
         errs.append("before_after needs before, now and do")
     has_number = any(re.search(r"\d", t) for k, t in card_texts(img) if k != "label")
@@ -173,12 +187,20 @@ def glyph_errors(img: dict) -> list[str]:
 def body(img: dict) -> str:
     lay = img["layout"]
     if lay == "thread_cover":
+        rows = "".join(
+            f'<div style="display:flex;align-items:center;margin-top:{0 if i == 1 else 14}px">'
+            f'<span class="t" style="display:inline-flex;width:50px;height:50px;border-radius:14px;background:#15B5B0;color:#063831;align-items:center;justify-content:center;font-weight:700;font-size:30px;margin-right:24px;flex:none">{i}</span>'
+            f'<span class="t" style="font-size:33px;font-weight:600">{esc(t)}</span></div>'
+            for i, t in enumerate(img["sections"], 1))
         return (
-            '<div class="abs" style="left:70px;top:190px;width:940px">'
-            f'<div class="pill t" style="font-size:28px">{esc(img.get("label") or "NEW GUIDE")}</div>'
-            f'<div class="h t" style="font-size:96px;margin-top:34px">{headline_html(img["headline"])}</div>'
-            f'<div class="sub t" style="font-size:38px;margin-top:34px;line-height:1.4">{esc(img.get("sub", ""))}</div>'
-            f'<div class="t" style="margin-top:60px;font-size:36px;font-weight:600">{esc(ARROW)}</div></div>'
+            '<div class="abs" style="left:70px;top:160px;width:940px;height:1040px;display:flex;flex-direction:column;justify-content:center">'
+            f'<div><span class="t" style="display:inline-block;background:#FFD60A;color:#1F2937;font-weight:600;font-size:30px;border-radius:40px;padding:10px 28px">{esc(img.get("label") or "NEW GUIDE")}</span></div>'
+            f'<div class="h t" style="font-size:90px;margin-top:26px">{headline_html(img["headline"])}</div>'
+            f'<div class="sub t" style="font-size:34px;margin-top:20px;line-height:1.35">{esc(img.get("sub", ""))}</div>'
+            '<div class="box2" style="margin-top:32px;background:rgba(255,255,255,.08);border:2px solid rgba(143,220,217,.35);border-radius:22px;padding:26px 32px">'
+            f'<div class="t" style="font-size:26px;font-weight:600;color:#8FDCD9;letter-spacing:.08em;margin-bottom:16px">{esc(box_title(img))}</div>'
+            f"{rows}</div>"
+            f'<div style="margin-top:32px"><span class="btn t" style="font-size:32px;padding:18px 34px">{esc(ARROW)}</span></div></div>'
         )
     rows = ""
     if lay == "stat_cards":
@@ -243,7 +265,7 @@ MEASURE_JS = """() => {
       left: Math.min(k.left, tr.left), right: Math.max(k.right, tr.right), top: k.top, bottom: Math.max(k.bottom, tr.bottom),
       overflow: e.scrollWidth > e.clientWidth + 1});
   });
-  document.querySelectorAll('.box').forEach(e => { const k = r(e);
+  document.querySelectorAll('.box, .box2').forEach(e => { const k = r(e);
     out.texts.push({cls: 'box', text: '', size: 99, left: k.left, right: k.right, top: k.top, bottom: k.bottom,
       overflow: e.scrollWidth > e.clientWidth + 1}); });
   return out;
@@ -295,7 +317,7 @@ def render(draft_path: Path) -> dict:
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--allow-file-access-from-files"])
         qa_errs, used = [], None
-        for hs in ((96,) if img["layout"] == "thread_cover" else (70, 64, 58)):
+        for hs in ((90,) if img["layout"] == "thread_cover" else (70, 64, 58)):
             html_path.write_text(page(img, hs), encoding="utf-8")
             pg = browser.new_page(viewport={"width": W, "height": H}, device_scale_factor=1)
             pg.goto(html_path.resolve().as_uri(), wait_until="networkidle")

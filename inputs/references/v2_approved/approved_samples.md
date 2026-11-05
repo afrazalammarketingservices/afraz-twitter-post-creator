@@ -23,7 +23,7 @@ Which one is worst on your store?
 ## Wed, what_changed (AEO fallback), text
 There is no special "AI schema" for Google's AI search.
 
-Google says there is "no special schema.org structured data that you need to add" to appear in AI Overviews or AI Mode.
+Google says you don't need to add any special structured data to appear in AI Overviews or AI Mode.
 
 The same basics decide it: pages Google can crawl, index and understand.
 
@@ -37,7 +37,7 @@ On Shopify, one product can live at two URLs:
 
 Shopify's canonical tag points Google to the short one, so it's usually fine.
 
-The waste starts when the theme links the long version everywhere. Check one menu link.
+The waste starts when themes link the long one everywhere. Which does your menu use?
 
 ## Fri, website_thread, thread with cover image on part 1 (reference_images/X_Sample_Friday_Thread_Cover.jpg)
 1. 20 store SEO checks you can run in about an hour, with no paid tools.

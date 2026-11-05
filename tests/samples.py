@@ -41,9 +41,9 @@ TUE = {
 WED = {
     "date_ist": "2026-11-11", "day": "Wed", "pillar": "what_changed", "format": "single", "keyword": "AI search",
     "topic": "No special schema for Google's AI search", "topic_key": "no-special-ai-schema",
-    "parts": ["There is no special \"AI schema\" for Google's AI search.\n\nGoogle says there is \"no special schema.org "
-              "structured data that you need to add\" to appear in AI Overviews or AI Mode.\n\nThe same basics decide it: "
-              "pages Google can crawl, index and understand.\n\nSold an AI SEO fix lately?"],
+    "parts": ["There is no special \"AI schema\" for Google's AI search.\n\nGoogle says you don't need to add any special "
+              "structured data to appear in AI Overviews or AI Mode.\n\nThe same basics decide it: pages Google can crawl, "
+              "index and understand.\n\nSold an AI SEO fix lately?"],
     "sources": [{"id": "s1", "name": "Google Search Central, AI features and your website",
                  "url": "https://developers.google.com/search/docs/appearance/ai-features", "date": "2026-11-05",
                  "quote": "There's no special schema.org structured data that you need to add."}],
@@ -55,8 +55,8 @@ THU = {
     "date_ist": "2026-11-12", "day": "Thu", "pillar": "myth_or_mistake", "format": "single", "keyword": "canonical tag",
     "topic": "One Shopify product, two URLs", "topic_key": "shopify-collection-product-urls",
     "parts": ["On Shopify, one product can live at two URLs:\n\n/collections/shoes/products/red-sneaker\n/products/red-sneaker\n\n"
-              "Shopify's canonical tag points Google to the short one, so it's usually fine.\n\nThe waste starts when the "
-              "theme links the long version everywhere. Check one menu link."],
+              "Shopify's canonical tag points Google to the short one, so it's usually fine.\n\nThe waste starts when "
+              "themes link the long one everywhere. Which does your menu use?"],
     "sources": [{"id": "s1", "name": "Google Search Central, How to specify a canonical URL",
                  "url": "https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls",
                  "date": "2026-11-05", "quote": "Use the rel=\"canonical\" link annotation to indicate the canonical URL."}],
@@ -81,6 +81,8 @@ FRI = {
     "numbers": {"20": "s1", "5": "s1"}, "source_article": "https://afrazalam.com/shopify-seo-checklist/",
     "image": {"layout": "thread_cover", "label": "NEW GUIDE", "headline": "20 store SEO checks in [[about an hour]]",
               "sub": "No paid tools. Shopify, WooCommerce and custom stores.",
+              "sections": ["Can Google find your store?", "Duplicate and broken pages", "Pages worth ranking", "Speed",
+                           "Trust and measurement"],
               "alt_text": "Thread cover for a guide to 20 store SEO checks a Shopify or WooCommerce owner can run in about an hour."},
     "first_reply": {"cta_type": "article", "source_id": None},
 }

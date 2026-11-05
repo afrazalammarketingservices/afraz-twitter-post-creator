@@ -11,7 +11,7 @@ SEO only: SEO, AEO and GEO for Shopify, WooCommerce and custom-built stores. Rea
 - One brand system, the same as Instagram v2: 1080 x 1350, deep teal radial gradient, faint white dot grid, AAMS logo top left (70, 70, 64px high), "afrazalam.com" bottom left.
 - Yellow label pill, a bold white Poppins headline with 1 to 3 key words in a teal highlight, a short teal subline, rounded glass boxes.
 - Fonts come from `inputs/brand/fonts/` (Poppins, Inter), never Google Fonts. The logo is the original file, never redrawn.
-- Five layouts: `stat_cards` (up to 3 cards: key, value, text), `checklist` (up to 5 ticked rows), `before_after` (Before, Now, Do this), `steps` (3 numbered rows) and `thread_cover` (Friday: "NEW GUIDE", headline, subline, "Read the thread").
+- Five layouts: `stat_cards` (up to 3 cards: key, value, text), `checklist` (up to 5 ticked rows), `before_after` (Before, Now, Do this), `steps` (3 numbered rows) and `thread_cover` (Friday: "NEW GUIDE", headline, subline, a "THE n AREAS" or "THE n STEPS" box listing the thread's 3 to 5 sections (each up to 32 characters) as numbered rows, then a teal "Read the thread" button; the block sits centred between the logo and the footer).
 - A source line ("Source: Publisher, page") sits above the footer whenever the card states a number or a platform rule.
 - Limits: headline up to 9 words with 1 to 3 highlighted; card and row text up to 60 characters; subline up to 90.
 - QA: everything between x 70 and 1010, content above y 1230, no text under 26px except the source line, the headline, every number and every card key also appear in the post, and a 540px preview is rendered and checked.
