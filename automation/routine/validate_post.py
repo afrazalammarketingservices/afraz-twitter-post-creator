@@ -1,325 +1,290 @@
 #!/usr/bin/env python3
 """
-Pre-publish validator for the AAMS X Post routine (docs/X-ROUTINE-MIGRATION.md
-section 6). Reads one draft.json, prints a JSON report, exits 0 only when
-there are zero errors. Warnings never block.
+AAMS X agent v2 copy gate (inputs/X-STANDARD-v2.md section 5). Reads one
+draft.json, prints a JSON report, exits 0 only when there are zero errors.
+On a failure the routine rewrites only the failing part, max 2 rounds, then
+logs NEEDS_AFRAZ. The routine must never edit this file during a run.
 
-Usage:
-    python automation/routine/validate_post.py outputs/<date>_<slug>/draft.json
+    python automation/routine/validate_post.py outputs/<folder>/draft.json
 
-draft.json shape:
+draft.json (v2):
 {
-  "date_ist": "2026-10-05", "day": "Mon", "reader": "home-service",
-  "format": "single" | "thread",
-  "topic": "Free-text topic", "topic_key": "gbp-primary-category",
-  "parts": ["post text"]  (thread: 4-6 parts),
-  "sources": [{"id": "s1", "name": "...", "url": "https://...",
-               "date": "YYYY-MM-DD", "quote": "source's own wording"}],
-  "numbers": {"25": {"source": "s1"}, "10": {"kind": "example", "note": "..."}},
-  "first_reply": {"source_url": "https://..." | null, "cta": "<one CTA_REPLY_VARIANTS line>"},
-  "image": null | {"layout": "...", "variant": "dark" | "light",
-                   "headline": "...", "labels": ["...", ...], "alt_text": "...",
-                   "manifest": "outputs/<date>_<slug>/render_manifest.json"}
+  "date_ist": "2026-11-09", "day": "Mon", "pillar": "seo_fix",
+  "format": "single" | "thread", "keyword": "XML sitemap",
+  "topic": "...", "topic_key": "sitemap-is-a-hint",
+  "parts": ["post text"],                      (thread: one string per part)
+  "sources": [{"id": "s1", "name": "Publisher, page title", "url": "https://...",
+               "date": "YYYY-MM-DD", "quote": "the page's own words"}],
+  "numbers": {"2.5": "s1", "3": {"kind": "count", "note": "3 metrics listed"}},
+  "source_article": null | "https://afrazalam.com/...",
+  "image": null | {... see render_card.py ..., "alt_text": "One sentence."},
+  "first_reply": {"cta_type": "checklist" | "article" | "call", "source_id": "s1" | null}
 }
+The image must be rendered (render_card.py) before this gate runs.
 """
-import ast
 import hashlib
 import json
 import re
 import sys
+import unicodedata
 import warnings
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import render_card  # noqa: E402
+import x_log  # noqa: E402
+import x_reply  # noqa: E402
+import x_today  # noqa: E402
+
 warnings.filterwarnings("ignore")
-from twitter_text import parse_tweet  # noqa: E402
 
-REPO = Path(__file__).resolve().parents[2]
-LOG_PATH = REPO / "memory" / "x-post-log.md"
-PIPELINE_PATH = REPO / "automation" / "pipeline.py"
-LOGOS = {
-    "dark": REPO / "inputs" / "brand" / "logo_white.png",
-    "light": REPO / "inputs" / "brand" / "logo_primary_color_transparent.png",
-}
-LAYOUTS = {"comparison", "stat_grid", "before_after", "checklist", "single_stat"}
-
-DASHES = {chr(0x2014): "em dash", chr(0x2013): "en dash"}
-BANNED_OPENERS = ["just a thought", "hear me out", "interesting thread", "thread:", "a thread", "\U0001f9f5"]
-LINK_RE = re.compile(
-    r"(https?://|www\.)|\b[a-z0-9-]+\.(com|net|org|io|co|ai|in|us|app|dev|ly|me|biz|info)\b",
-    re.IGNORECASE,
-)
-HASHTAG_RE = re.compile(r"(?<!\w)#\w+")
-NUMBER_RE = re.compile(r"(?<![\w/])[$₹]?\d[\d,]*(?:\.\d+)?[%kKmMxX]?")
-THREAD_MARKER_RE = re.compile(r"^\s*\d+\s*/\s*\d+")
+DASHES = (chr(0x2014), chr(0x2013))
+BANNED = ["game-changer", "game changer", "in today's", "let's dive", "unlock", "supercharge", "skyrocket",
+          "follow for more", "like and repost", "comment below"]
+OFF_TOPIC = [r"\bROAS\b", r"\bMeta Ads\b", r"\bFacebook Ads\b", r"\bGoogle Ads\b", r"\bPPC\b", r"\bCAPI\b",
+             r"\bPixel\b", r"\bad spend\b", r"\bCPC\b", r"\bCPA\b", r"Advantage\+", r"\bHVAC\b",
+             r"\bplumb(?:ing|ers?)\b", r"\broof(?:ing|ers?)\b", r"\bhome[- ]services?\b",
+             r"\blocal[- ]services?\b", r"\bcoach(?:es|ing)?\b"]
+HASHTAGS_OK = {"#shopifyseo", "#ecommerceseo", "#woocommerce"}
+URL_RE = re.compile(r"https?://|www\.|\b[a-z0-9-]+\.(?:com|net|org|io|co|in|shop|store|ai|dev|app|uk|us)\b", re.I)
+COUNTER_RE = re.compile(r"^\s*\(?\d+\s*/\s*\d+\)?|(?<![\d.])\b\d{1,2}/\d{1,2}\b(?![\d/])|^\s*\d+[.)]\s")
+NUM_RE = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")
+SINGLE_MIN, MAX_CHARS, THREAD_PART_MIN = 200, 280, 80
 
 
 def weighted(text: str) -> int:
+    from twitter_text import parse_tweet
     return parse_tweet(text).weightedLength
 
 
-def norm_number(tok: str) -> str:
-    tok = tok.strip().rstrip(".,")
-    return tok.lstrip("$₹").replace(",", "").lower()
+def is_emoji(c: str) -> bool:
+    o = ord(c)
+    return unicodedata.category(c) == "So" or 0x1F000 <= o <= 0x1FAFF or 0x2600 <= o <= 0x27BF or o in (0xFE0F, 0x200D)
 
 
-def cta_variants() -> list[str]:
-    tree = ast.parse(PIPELINE_PATH.read_text(encoding="utf-8"))
-    for node in tree.body:
-        if isinstance(node, ast.Assign) and any(
-            isinstance(t, ast.Name) and t.id == "CTA_REPLY_VARIANTS" for t in node.targets
-        ):
-            return list(ast.literal_eval(node.value))
-    raise RuntimeError("CTA_REPLY_VARIANTS not found in automation/pipeline.py")
+def text_checks(label: str, text: str) -> list[str]:
+    errs = []
+    if any(d in text for d in DASHES):
+        errs.append(f"{label}: em or en dash")
+    if any(is_emoji(c) for c in text):
+        errs.append(f"{label}: emoji")
+    if "!" in text:
+        errs.append(f"{label}: exclamation mark")
+    low = text.lower().replace("’", "'")
+    for b in BANNED:
+        if b in low:
+            errs.append(f"{label}: banned phrase {b!r}")
+    for pat in OFF_TOPIC:
+        m = re.search(pat, text, re.I)
+        if m:
+            errs.append(f"{label}: not SEO-only, found {m.group(0)!r}")
+    return errs
 
 
-def log_rows() -> list[dict]:
-    if not LOG_PATH.exists():
-        return []
-    rows, header = [], None
-    for line in LOG_PATH.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("|") or set(line.replace("|", "").strip()) <= {"-", " "}:
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if header is None:
-            header = [c.lower() for c in cells]
-            continue
-        rows.append(dict(zip(header, cells)))
-    return rows
+def ends_with_question(parts: list[str]) -> bool:
+    return bool(parts) and parts[-1].rstrip().endswith("?")
 
 
-def main(path: str) -> int:
-    draft = json.loads(Path(path).read_text(encoding="utf-8"))
+def validate(draft: dict, draft_dir: Path, st: dict) -> dict:
     errors, warns, info = [], [], {}
+    try:
+        d = date.fromisoformat(draft.get("date_ist", ""))
+    except ValueError:
+        return {"ok": False, "errors": ["date_ist missing or not YYYY-MM-DD"], "warnings": [], "info": {}}
+    plan = x_today.plan(d)
+    pillar, parts = draft.get("pillar"), draft.get("parts") or []
+    if plan["pillar"] is None:
+        errors.append(f"{d} is a {plan['weekday']}: no post on weekends")
+    elif pillar != plan["pillar"]:
+        errors.append(f"pillar must be {plan['pillar']!r} on {plan['weekday']}, got {pillar!r}")
+    if draft.get("day") != plan["weekday"][:3]:
+        errors.append(f"day must be {plan['weekday'][:3]!r}")
 
-    parts = draft.get("parts") or []
-    fmt = draft.get("format")
-    if fmt not in ("single", "thread"):
-        errors.append(f"format must be single or thread, got {fmt!r}")
-    if fmt == "single" and len(parts) != 1:
-        errors.append(f"single post must have exactly 1 part, got {len(parts)}")
-    if fmt == "thread" and not 4 <= len(parts) <= 6:
-        errors.append(f"thread must have 4 to 6 parts, got {len(parts)}")
-    if not parts:
-        print(json.dumps({"ok": False, "errors": ["no parts"]}, indent=2))
-        return 1
-
-    reply = draft.get("first_reply") or {}
-    image = draft.get("image")
-    all_text = {f"part {i + 1}": p for i, p in enumerate(parts)}
-    all_text["first_reply.cta"] = reply.get("cta") or ""
-    if image:
-        all_text["image.headline"] = image.get("headline", "")
-        for i, lab in enumerate(image.get("labels", [])):
-            all_text[f"image.label {i + 1}"] = lab
-        all_text["image.alt_text"] = image.get("alt_text", "")
-    all_text["topic"] = draft.get("topic", "")
-
-    # 1. No em or en dashes anywhere.
-    for where, text in all_text.items():
-        for ch, name in DASHES.items():
-            if ch in text:
-                errors.append(f"{name} in {where}")
-
-    # 2. Hook rules on part 1.
-    first_line = parts[0].strip().splitlines()[0] if parts[0].strip() else ""
-    info["first_line_chars"] = len(first_line)
-    if len(first_line) >= 100:
-        errors.append(f"first line is {len(first_line)} chars, must be under 100")
-    low = parts[0].strip().lower()
-    for b in BANNED_OPENERS:
-        if low.startswith(b):
-            errors.append(f"banned opener: {b!r}")
-    if parts[0].strip().startswith("#"):
-        errors.append("part 1 starts with a hashtag")
-
-    # 3. No link in the body. Hashtags 0 or 1 across the whole publication.
-    hashtags = 0
-    for i, p in enumerate(parts):
-        if LINK_RE.search(p):
-            errors.append(f"link or domain in part {i + 1}: {LINK_RE.search(p).group(0)!r}")
-        hashtags += len(HASHTAG_RE.findall(p))
-    info["hashtags"] = hashtags
-    if hashtags > 1:
-        errors.append(f"{hashtags} hashtags, max 1")
-
-    # 4. X weighted character counts.
+    # Format and length
+    n = len(parts)
+    if n == 0 or not all(isinstance(p, str) and p.strip() for p in parts):
+        errors.append("parts must be a non-empty list of non-empty strings")
+        parts = [p for p in parts if isinstance(p, str)]
+    if plan["parts"] and n not in plan["parts"]:
+        errors.append(f"{plan['weekday']} allows {plan['parts']} part(s), got {n}")
+    if pillar == "what_changed" and n > 1 and st.get("wed_thread_last_2_weeks"):
+        errors.append("a Wednesday thread already ran in the last 2 weeks: post a single")
+    fmt = "single" if n == 1 else "thread"
+    if draft.get("format") != fmt:
+        errors.append(f"format must be {fmt!r} for {n} part(s)")
     counts = [weighted(p) for p in parts]
     info["weighted_counts"] = counts
     for i, c in enumerate(counts):
-        if c > 280:
-            errors.append(f"part {i + 1} is {c} weighted chars, hard max 280")
-    if fmt == "single":
-        if counts[0] < 200:
-            errors.append(f"single post is {counts[0]} weighted chars, below the 200 floor (target 230 to 250)")
-        elif not 230 <= counts[0] <= 250:
-            warns.append(f"single post is {counts[0]} weighted chars, target is 230 to 250")
-    if fmt == "thread":
-        for i, c in enumerate(counts):
-            if c < 60:
-                warns.append(f"thread part {i + 1} is only {c} chars")
+        lo = SINGLE_MIN if n == 1 else THREAD_PART_MIN
+        if not lo <= c <= MAX_CHARS:
+            errors.append(f"part {i + 1} is {c} weighted chars, must be {lo} to {MAX_CHARS}")
 
-    # 5. Every number has a logged source (or is a labelled worked example).
-    sources = {s.get("id"): s for s in draft.get("sources", [])}
-    for sid, s in sources.items():
-        if not str(s.get("url", "")).startswith("http"):
-            errors.append(f"source {sid} has no URL")
-        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(s.get("date", ""))):
-            errors.append(f"source {sid} has no YYYY-MM-DD date")
-    numbers = {norm_number(k): v for k, v in (draft.get("numbers") or {}).items()}
-    texts_with_numbers = list(parts)
-    if image:
-        texts_with_numbers += [image.get("headline", "")] + list(image.get("labels", []))
-    seen = set()
-    for text in texts_with_numbers:
-        body = "\n".join(THREAD_MARKER_RE.sub("", ln) for ln in text.splitlines())
-        for tok in NUMBER_RE.findall(body):
-            key = norm_number(tok)
-            if not key or key in seen:
-                continue
-            seen.add(key)
-            entry = numbers.get(key)
-            if entry is None:
-                errors.append(f"number {tok!r} has no entry in 'numbers'")
-            elif entry.get("source"):
-                if entry["source"] not in sources:
-                    errors.append(f"number {tok!r} points to unknown source {entry['source']!r}")
-            elif entry.get("kind") == "example":
-                if not entry.get("note"):
-                    errors.append(f"number {tok!r} is a worked example but has no note")
-            else:
-                errors.append(f"number {tok!r} needs a source id or kind=example with a note")
-    info["numbers_checked"] = sorted(seen)
+    # Part 1 rules
+    if parts:
+        first = parts[0].strip().splitlines()[0] if parts[0].strip() else ""
+        info["first_line_chars"] = len(first)
+        if len(first) >= 100:
+            errors.append(f"first line is {len(first)} chars, must be under 100")
+        if first.startswith("#"):
+            errors.append("part 1 starts with a hashtag")
+        if re.search(r"\bthread\b", parts[0], re.I):
+            errors.append("the word 'thread' in part 1 (only the Friday cover image may say it)")
+    for i, p in enumerate(parts):
+        if COUNTER_RE.search(p):
+            errors.append(f"part {i + 1}: '1/6' style counter or list number")
+        if URL_RE.search(p):
+            errors.append(f"part {i + 1}: URL in the post body (links go in the first reply)")
+        errors += text_checks(f"part {i + 1}", p)
+    tags = [t.lower() for p in parts for t in re.findall(r"(?<![\w#])#\w+", p)]
+    if len(tags) > 1:
+        errors.append(f"{len(tags)} hashtags, max 1")
+    for t in tags:
+        if t not in HASHTAGS_OK:
+            errors.append(f"hashtag {t} not allowed (only #ShopifySEO #EcommerceSEO #WooCommerce)")
+    for k in ("topic", "keyword"):
+        if not draft.get(k):
+            errors.append(f"{k} missing")
+        else:
+            errors += text_checks(k, draft[k])
+    kw = (draft.get("keyword") or "").lower()
+    if kw and kw not in " ".join(parts).lower():
+        errors.append(f"keyword {draft['keyword']!r} is not in the post copy")
 
-    # 6. First reply: one reply, CTA from the rotation, not the same as the last published post.
-    variants = cta_variants()
-    cta = reply.get("cta")
-    if cta not in variants:
-        errors.append(f"first_reply.cta must be one of CTA_REPLY_VARIANTS, got {cta!r}")
-    src_url = reply.get("source_url")
-    if src_url and not str(src_url).startswith("http"):
-        errors.append("first_reply.source_url must be a full URL or null")
-    reply_text = (f"Source: {src_url}\n\n{cta}" if src_url else (cta or ""))
-    info["first_reply_weighted"] = weighted(reply_text)
-    if weighted(reply_text) > 280:
-        errors.append("first reply exceeds 280 weighted chars")
-    rows = log_rows()
-    published = [r for r in rows if r.get("status", "").upper() == "PUBLISHED"]
-    if published and published[-1].get("cta variant") == cta:
-        errors.append("same CTA variant as the last published post, rotate")
+    # Questions
+    q = ends_with_question(parts)
+    info["question"] = "yes" if q else "no"
+    if pillar == "myth_or_mistake" and not q:
+        errors.append("Thursday must end with a question")
+    if plan["pillar"]:
+        need = 3 - st.get("questions_this_week", 0)
+        left = 5 - d.weekday()
+        if need >= left and not q:
+            errors.append(f"only {st.get('questions_this_week', 0)} question post(s) so far this week, this one must end with a question")
 
-    # 7. No repeat topic in the last 30 days.
+    # Topic repeat
     tk = draft.get("topic_key")
     if not tk:
         errors.append("topic_key missing")
-    else:
+    elif tk in st.get("topic_keys_60d", []):
+        errors.append(f"topic_key {tk!r} was used in the last 60 days")
+
+    # Sources and numbers
+    sources = {s.get("id"): s for s in draft.get("sources", [])}
+    if not sources:
+        errors.append("at least one source opened in this run is required")
+    for sid, s in sources.items():
+        for k in ("id", "name", "url", "date", "quote"):
+            if not s.get(k):
+                errors.append(f"source {sid}: {k} missing")
+        if s.get("name") and ", " not in s["name"]:
+            errors.append(f"source {sid}: name must be 'Publisher, page title'")
+        if s.get("url") and not str(s["url"]).startswith("http"):
+            errors.append(f"source {sid}: url must be a full URL")
         try:
-            today = date.fromisoformat(draft.get("date_ist", ""))
+            date.fromisoformat(s.get("date", ""))
         except ValueError:
-            today = date.today()
-            errors.append("date_ist missing or not YYYY-MM-DD")
-        cutoff = today - timedelta(days=30)
-        for r in published:
-            try:
-                d = date.fromisoformat(r.get("ist date", ""))
-            except ValueError:
-                continue
-            if d >= cutoff and r.get("topic key") == tk:
-                errors.append(f"topic_key {tk!r} already published on {d}")
+            errors.append(f"source {sid}: date must be YYYY-MM-DD")
+    numbers = draft.get("numbers") or {}
+    for tok in sorted({t for p in parts for t in NUM_RE.findall(p)}):
+        entry = numbers.get(tok, numbers.get(tok.rstrip("%")))
+        if entry is None:
+            errors.append(f"number {tok!r} has no entry in numbers")
+        elif isinstance(entry, dict):
+            if entry.get("kind") != "count" or not entry.get("note"):
+                errors.append(f"number {tok!r}: use a source id, or kind 'count' with a note")
+        elif entry not in sources:
+            errors.append(f"number {tok!r} points to unknown source {entry!r}")
+        elif tok.rstrip("%") not in sources[entry].get("quote", ""):
+            errors.append(f"number {tok!r} is not in the quote of {entry} (use the page's own words)")
 
-    # 8. Day-of-week defaults (warnings only, the doc calls these defaults).
-    day = draft.get("day")
-    expected = {"Mon": "text", "Tue": "image", "Thu": "image", "Fri": "text"}
-    if day in expected:
-        has_img = bool(image)
-        if expected[day] == "image" and not has_img:
-            warns.append(f"{day} default is single post + image")
-        if expected[day] == "text" and has_img:
-            warns.append(f"{day} default is text only")
-    if fmt == "thread" and day != "Wed":
-        warns.append("threads are planned for Wednesday")
-    # Weekly mix: only the current Monday to Sunday IST week, and manual
-    # tests never count (they still count for the 30-day topic check above).
-    week = []
+    # First reply
+    fr = draft.get("first_reply") or {}
+    ct = fr.get("cta_type")
+    art = draft.get("source_article")
+    if pillar == "website_thread":
+        want = "article" if art else "checklist"
+        if ct != want:
+            errors.append(f"Friday CTA must be {want!r}")
+    elif ct and ct == st.get("last_cta_type"):
+        errors.append(f"cta_type {ct!r} was used last time, rotate")
+    if art and not str(art).startswith("https://afrazalam.com/"):
+        errors.append("source_article must be an https://afrazalam.com/ page")
     try:
-        monday = date.fromisoformat(draft.get("date_ist", ""))
-        monday -= timedelta(days=monday.weekday())
-        for r in published:
-            notes = r.get("notes", "").lower()
-            if "manual live test" in notes or "manual test" in notes:
-                continue
-            try:
-                d = date.fromisoformat(r.get("ist date", ""))
-            except ValueError:
-                continue
-            if monday <= d <= monday + timedelta(days=6):
-                week.append(r)
-    except ValueError:
-        pass
-    info["week_mix"] = {
-        "image": sum(1 for r in week if r.get("image layout", "text") != "text"),
-        "text": sum(1 for r in week if r.get("image layout", "text") == "text"),
-        "thread": sum(1 for r in week if r.get("format") == "thread"),
-    }
-    if fmt == "thread":
-        week_threads = info["week_mix"]["thread"]
-        if week_threads >= 1:
-            errors.append("a thread was already published this week, max 1")
+        reply = x_reply.build(draft)
+        info["reply_text"] = reply
+        info["reply_weighted"] = weighted(reply)
+        if info["reply_weighted"] > MAX_CHARS:
+            errors.append("first reply is over 280 weighted chars")
+        if any(dd in reply for dd in DASHES):
+            errors.append("first reply: em or en dash")
+    except ValueError as e:
+        errors.append(f"first reply: {e}")
+    info["cta_type"], info["utm_campaign"] = ct, pillar
 
-    # 9. Image checks.
-    if image:
-        if image.get("layout") not in LAYOUTS:
-            errors.append(f"image.layout must be one of {sorted(LAYOUTS)}")
-        if image.get("variant") not in LOGOS:
-            errors.append("image.variant must be dark or light")
-        labels = image.get("labels") or []
-        if len(labels) > 3:
-            errors.append(f"{len(labels)} image labels, max 3")
-        if len(image.get("headline", "")) > 48:
-            errors.append("image headline over 48 chars")
-        for i, lab in enumerate(labels):
-            if len(lab) > 32:
-                errors.append(f"image label {i + 1} over 32 chars")
-        alt = image.get("alt_text", "")
-        if not 20 <= len(alt) <= 1000:
-            errors.append("alt_text must be 20 to 1000 chars")
-        man_path = image.get("manifest")
-        if not man_path or not (REPO / man_path).exists():
-            errors.append("render manifest missing, render the image first")
+    # Image
+    img = draft.get("image")
+    want_img = plan.get("image")
+    if not want_img and img:
+        errors.append(f"{plan['weekday']} is text only, image must be null")
+    if want_img and not img:
+        errors.append(f"{plan['weekday']} needs an image ({want_img})")
+    if img and want_img:
+        lay = img.get("layout")
+        if lay not in want_img.split("|"):
+            errors.append(f"image.layout must be one of {want_img}, got {lay!r}")
+        if pillar == "image_card" and lay and lay == st.get("last_image_layout"):
+            errors.append(f"image.layout {lay!r} was the last image layout, rotate")
+        alt = (img.get("alt_text") or "").strip()
+        sentences = [s for s in re.split(r"(?<=[.?])\s+", alt) if s]
+        if not alt:
+            errors.append("image.alt_text missing")
         else:
-            man = json.loads((REPO / man_path).read_text(encoding="utf-8"))
-            from PIL import Image as PILImage
-            png = REPO / man["image"]
-            with PILImage.open(png) as im:
-                info["image_size"] = list(im.size)
-                if im.size != (1200, 1200):
-                    errors.append(f"image is {im.size}, must be 1200x1200")
-                if im.mode not in ("RGB",):
-                    errors.append(f"image mode {im.mode}, must be opaque RGB")
-            expected_hash = hashlib.sha256(LOGOS[image["variant"]].read_bytes()).hexdigest()
-            if man.get("logo_sha256") != expected_hash:
-                errors.append("logo bytes do not match the original logo file for this variant")
-            if man.get("variant") != image.get("variant") or man.get("layout") != image.get("layout"):
-                errors.append("manifest variant/layout does not match draft")
-            if man.get("headline") != image.get("headline") or man.get("labels") != labels:
-                errors.append("rendered image text does not match the approved image text")
-            has_example = any(v.get("kind") == "example" for v in (draft.get("numbers") or {}).values())
-            if has_example and "Example" not in (man.get("rendered_text") or []):
-                errors.append("a number is logged as a worked example, so the image must show the 'Example' label; re-render")
-            if not man.get("fit_ok"):
-                errors.append(f"text clipped or out of safe area: {man.get('fit_issues')}")
-            if man.get("min_font_px", 0) < 34:
-                errors.append(f"smallest text is {man.get('min_font_px')}px, unreadable at mobile size")
-            if not (REPO / man.get("mobile_preview", "")).exists():
-                errors.append("mobile preview missing")
+            if len(sentences) != 1 or not alt.endswith("."):
+                errors.append("alt text must be one sentence ending with a full stop")
+            if kw and kw not in alt.lower():
+                errors.append(f"alt text must contain the keyword {draft.get('keyword')!r}")
+            if len(alt) > 1000:
+                errors.append("alt text over 1000 chars")
+            errors += text_checks("alt text", alt)
+        for _, t in render_card.card_texts(img):
+            errors += text_checks("image text", t)
+        mpath = draft_dir / "render_manifest.json"
+        if not mpath.exists():
+            errors.append("no render_manifest.json: run render_card.py first")
+        else:
+            m = json.loads(mpath.read_text(encoding="utf-8"))
+            if not m.get("ok"):
+                errors.append(f"render QA failed: {m.get('errors')}")
+            if m.get("layout") != lay:
+                errors.append("render_manifest layout does not match draft.json: render again")
+            if m.get("logo_sha256") != hashlib.sha256(render_card.LOGO.read_bytes()).hexdigest():
+                errors.append("logo hash does not match inputs/brand/AAMS_Logo_Horizontal_OnDark.png")
+            if m.get("size") != [render_card.W, render_card.H]:
+                errors.append(f"image size {m.get('size')}, expected 1080 x 1350")
+            for k in ("image", "preview"):
+                if not m.get(k) or not Path(m[k]).exists():
+                    errors.append(f"rendered {k} file missing")
+            if m.get("card_text") != [t for _, t in render_card.card_texts(img)]:
+                errors.append("card text changed since the render: render again")
+    return {"ok": not errors, "errors": errors, "warnings": warns, "info": info}
 
-    report = {"ok": not errors, "errors": errors, "warnings": warns, "info": info}
-    print(json.dumps(report, indent=2, ensure_ascii=False))
-    return 0 if not errors else 1
+
+def main(path: str) -> int:
+    p = Path(path)
+    draft = json.loads(p.read_text(encoding="utf-8"))
+    try:
+        st = x_log.state(date.fromisoformat(draft.get("date_ist", "")))
+    except ValueError:
+        st = {}
+    report = validate(draft, p.parent, st)
+    out = json.dumps(report, indent=2, ensure_ascii=False)
+    sys.stdout.buffer.write((out + "\n").encode("utf-8"))
+    return 0 if report["ok"] else 1
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("usage: validate_post.py <draft.json>", file=sys.stderr)
+        print(__doc__)
         sys.exit(2)
     sys.exit(main(sys.argv[1]))

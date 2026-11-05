@@ -4,26 +4,27 @@ Publishes a single tweet or a thread to X (Twitter), with an optional
 image on the first tweet.
 
 This hits the LIVE X API and posts to the real, authenticated profile.
-Only run it after the Step 5 approval gate in the twitter-post skill has
-already been satisfied by the user.
+The AAMS X agent v2 routine calls it through automation/routine/x_flow.py
+only after validate_post.py passes. Never run it while testing: use
+--dry-run, or x_flow.py --dry-run.
 
 Usage:
     # single tweet, no image
-    python publish_twitter.py --text "..." --slug "my-post"
+    python automation/routine/publish_twitter.py --text "..." --slug "my-post"
 
     # single tweet with image
-    python publish_twitter.py --text "..." --images outputs/2026-08-27_my-post/image_1.png --slug "my-post"
+    python automation/routine/publish_twitter.py --text "..." --images outputs/2026-08-27_my-post/image_1.png --slug "my-post"
 
     # thread (JSON array of strings, one per tweet, in order), image on tweet 1 only
-    python publish_twitter.py --thread-file outputs/2026-08-27_my-post/thread.json --images outputs/2026-08-27_my-post/image_1.png --slug "my-post"
+    python automation/routine/publish_twitter.py --thread-file outputs/2026-08-27_my-post/thread.json --images outputs/2026-08-27_my-post/image_1.png --slug "my-post"
 
     # a follow-up reply (e.g. to carry a link that shouldn't be in the body)
-    python publish_twitter.py --text "Details here: https://afrazalam.com" --in-reply-to 1234567890 --slug "my-post"
+    python automation/routine/publish_twitter.py --text "Details here: https://afrazalam.com" --in-reply-to 1234567890 --slug "my-post"
 
 Auth: uses OAuth 1.0a user-context credentials (API key/secret + access
 token/secret) for both the v1.1 media upload endpoint and the v2 tweet
 creation endpoint. All four must have Read and Write permission, see
-README.md if you get a 403.
+the X developer portal app settings if you get a 403.
 
 Logs every call to outputs/<date>_<slug>/publish_log.json.
 """
@@ -40,7 +41,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 REQUIRED_ENV = ["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"]
 
@@ -119,6 +120,7 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Validate inputs and print what would be posted; no API calls")
     parser.add_argument("--in-reply-to", help="Tweet ID to reply to (e.g. for a follow-up link reply)")
     parser.add_argument("--slug", required=True)
+    parser.add_argument("--result-json", type=Path, help="Also write this run's result (tweet ids, urls, alt text failures) to this file")
     args = parser.parse_args()
 
     if not args.text and not args.thread_file:
@@ -126,7 +128,7 @@ def main() -> None:
         sys.exit(1)
 
     if args.thread_file:
-        tweets = json.loads(Path(args.thread_file).read_text())
+        tweets = json.loads(Path(args.thread_file).read_text(encoding="utf-8"))
         if not isinstance(tweets, list) or not tweets:
             print("[publish] ERROR: --thread-file must be a non-empty JSON array of strings", file=sys.stderr)
             sys.exit(1)
@@ -187,6 +189,8 @@ def main() -> None:
     existing.append(log_entry)
     log_path.write_text(json.dumps(existing, indent=2))
 
+    if args.result_json:
+        args.result_json.write_text(json.dumps(log_entry, indent=2), encoding="utf-8")
     print(f"[publish] logged to {log_path}")
     print(f"[publish] live: {results[0]['url']}")
     if ALT_TEXT_FAILURES:
