@@ -1,0 +1,42 @@
+{
+  "date_ist": "2026-11-20",
+  "day": "Fri",
+  "pillar": "website_thread",
+  "format": "thread",
+  "keyword": "Shopify SEO checklist",
+  "topic": "My new Shopify SEO checklist: 25 fixes sorted by day, and the 5 to do first if you only have one hour",
+  "topic_key": "shopify-seo-checklist-25-fixes-by-day",
+  "parts": [
+    "Most Shopify SEO checklists run to 40 or 50 steps.\n\nA store owner with orders to pack won't finish that. So I cut my Shopify SEO checklist to 25 fixes, sorted by day, Monday to Friday. Most take 5 to 20 minutes.\n\nOnly have one hour this week? Do these 5 first:",
+    "Remove the password.\n\nShopify admin > Online Store > Preferences > Store access.\n\nIf Private mode is on, visitors and Google see a password page instead of your store. Nothing ranks behind a password.",
+    "Submit your sitemap.\n\nSearch Console > Sitemaps. Paste sitemap.xml and submit.\n\nShopify builds it for you and keeps it up to date, so you only submit the main one. A healthy result shows status Success.",
+    "Check your key pages are indexed.\n\nUse URL Inspection on your homepage, your top 3 collections and your top 5 products.\n\n\"Crawled, currently not indexed\" usually means the page looks thin or too similar to another. \"Discovered\" means Google hasn't got to it yet.",
+    "Give every key page its own title tag.\n\nOpen a product, scroll to Search engine listing, click the pencil. No two pages should share a title.\n\nKeep it under about 60 characters: product type + key detail + brand.",
+    "Test your Core Web Vitals.\n\nRun your homepage, one collection and one product page through PageSpeed Insights on mobile.\n\nGoogle's good targets: LCP 2.5 seconds or less, INP 200 ms or less, CLS 0.1 or less.",
+    "The other 20 fixes cover duplicate pages, collection text, speed, structured data and tracking sales from Google.\n\nWrite down what you changed and the date. In 4 weeks, compare.\n\nWhich of these 5 would your store fail first?"
+  ],
+  "sources": [
+    {"id": "s1", "name": "Afraz Alam, Shopify SEO Checklist: 25 Fixes You Can Do This Week", "url": "https://afrazalam.com/blog/shopify-seo-checklist/", "date": "2026-11-20", "quote": "Most Shopify SEO checklists online run to 40 or 50 steps. That is useful for an agency, but a store owner with orders to pack will not finish it. So I cut mine down to the 25 fixes I look at first when I audit a store"},
+    {"id": "s2", "name": "Afraz Alam, Shopify SEO Checklist: 25 Fixes You Can Do This Week", "url": "https://afrazalam.com/blog/shopify-seo-checklist/", "date": "2026-11-20", "quote": "The 25 fixes below are sorted by day, Monday to Friday, so you can finish them in a week. Start with indexing (Day 1), then duplicates, page content, speed, and tracking. Most take 5 to 20 minutes and need no developer. If this week is too busy, do these five and leave the rest for next week"},
+    {"id": "s3", "name": "Afraz Alam, Shopify SEO Checklist: 25 Fixes You Can Do This Week", "url": "https://afrazalam.com/blog/shopify-seo-checklist/", "date": "2026-11-20", "quote": "Then use URL Inspection on your homepage, your top 3 collections and your top 5 products."},
+    {"id": "s4", "name": "Afraz Alam, Shopify SEO Checklist: 25 Fixes You Can Do This Week", "url": "https://afrazalam.com/blog/shopify-seo-checklist/", "date": "2026-11-20", "quote": "Write a unique title under about 60 characters. A simple pattern that works: product type + key detail + brand."},
+    {"id": "s5", "name": "Afraz Alam, Shopify SEO Checklist: 25 Fixes You Can Do This Week", "url": "https://afrazalam.com/blog/shopify-seo-checklist/", "date": "2026-11-20", "quote": "Google's \"good\" targets are LCP 2.5 seconds or less, INP 200 ms or less, and CLS 0.1 or less (source: web.dev)"},
+    {"id": "s6", "name": "Afraz Alam, Shopify SEO Checklist: 25 Fixes You Can Do This Week", "url": "https://afrazalam.com/blog/shopify-seo-checklist/", "date": "2026-11-20", "quote": "Write down what you changed and the date. In 4 weeks you will want to compare."}
+  ],
+  "numbers": {
+    "40": "s1", "50": "s1", "25": "s1", "20": {"kind": "count", "note": "25 fixes in the guide minus the 5 listed in this post"},
+    "5": {"kind": "count", "note": "the 5 one-hour fixes listed in parts 2 to 6, and the guide's 'Most take 5 to 20 minutes' (s2)"},
+    "3": "s3", "60": "s4", "2.5": "s5", "200": "s5", "0.1": "s5", "4": "s6"
+  },
+  "source_article": "https://afrazalam.com/blog/shopify-seo-checklist/",
+  "image": {
+    "layout": "thread_cover",
+    "label": "NEW GUIDE",
+    "headline": "Do these [[5 first]]",
+    "sub": "From my new 25 fix Shopify SEO checklist",
+    "sections": ["Remove the password", "Submit your sitemap", "Check key pages are indexed", "Own title tag per page", "Test your Core Web Vitals"],
+    "sections_label": "steps",
+    "alt_text": "Cover for my Shopify SEO checklist with the 5 steps to do first: remove the password, submit your sitemap, check key pages are indexed, give each page its own title tag and test your Core Web Vitals."
+  },
+  "first_reply": {"cta_type": "article", "source_id": null}
+}

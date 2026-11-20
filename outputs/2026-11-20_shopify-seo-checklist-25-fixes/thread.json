@@ -1,0 +1,9 @@
+[
+  "Most Shopify SEO checklists run to 40 or 50 steps.\n\nA store owner with orders to pack won't finish that. So I cut my Shopify SEO checklist to 25 fixes, sorted by day, Monday to Friday. Most take 5 to 20 minutes.\n\nOnly have one hour this week? Do these 5 first:",
+  "Remove the password.\n\nShopify admin > Online Store > Preferences > Store access.\n\nIf Private mode is on, visitors and Google see a password page instead of your store. Nothing ranks behind a password.",
+  "Submit your sitemap.\n\nSearch Console > Sitemaps. Paste sitemap.xml and submit.\n\nShopify builds it for you and keeps it up to date, so you only submit the main one. A healthy result shows status Success.",
+  "Check your key pages are indexed.\n\nUse URL Inspection on your homepage, your top 3 collections and your top 5 products.\n\n\"Crawled, currently not indexed\" usually means the page looks thin or too similar to another. \"Discovered\" means Google hasn't got to it yet.",
+  "Give every key page its own title tag.\n\nOpen a product, scroll to Search engine listing, click the pencil. No two pages should share a title.\n\nKeep it under about 60 characters: product type + key detail + brand.",
+  "Test your Core Web Vitals.\n\nRun your homepage, one collection and one product page through PageSpeed Insights on mobile.\n\nGoogle's good targets: LCP 2.5 seconds or less, INP 200 ms or less, CLS 0.1 or less.",
+  "The other 20 fixes cover duplicate pages, collection text, speed, structured data and tracking sales from Google.\n\nWrite down what you changed and the date. In 4 weeks, compare.\n\nWhich of these 5 would your store fail first?"
+]
