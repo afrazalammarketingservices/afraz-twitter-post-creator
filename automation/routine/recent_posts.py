@@ -18,7 +18,9 @@ REQUIRED = ["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRE
 
 
 def client():
-    import tweepy
+    # api.x.com host via x_api.py (api.twitter.com is Cloudflare-challenged for the cloud runner since 19 Nov 2026).
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import x_api
     try:
         from dotenv import load_dotenv
         load_dotenv()
@@ -28,10 +30,7 @@ def client():
     if missing:
         print(json.dumps({"error": "missing env vars", "names": missing}))
         sys.exit(1)
-    return tweepy.Client(
-        consumer_key=os.environ["X_API_KEY"], consumer_secret=os.environ["X_API_SECRET"],
-        access_token=os.environ["X_ACCESS_TOKEN"], access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"],
-    )
+    return x_api.v2_client()
 
 
 def main() -> None:

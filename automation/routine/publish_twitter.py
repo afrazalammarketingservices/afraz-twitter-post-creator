@@ -40,6 +40,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -47,27 +48,17 @@ REQUIRED_ENV = ["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_S
 
 
 def get_clients():
-    import tweepy
+    # Hosts: api.x.com for v2 and upload.x.com for media (see x_api.py: api.twitter.com is
+    # Cloudflare-challenged for the cloud runner since 19 Nov 2026). OAuth 1.0a unchanged.
+    import x_api
 
     missing = [k for k in REQUIRED_ENV if not os.environ.get(k)]
     if missing:
         print(f"[publish] ERROR: missing env vars: {', '.join(missing)}", file=sys.stderr)
         sys.exit(1)
 
-    auth = tweepy.OAuth1UserHandler(
-        os.environ["X_API_KEY"],
-        os.environ["X_API_SECRET"],
-        os.environ["X_ACCESS_TOKEN"],
-        os.environ["X_ACCESS_TOKEN_SECRET"],
-    )
-    api_v1 = tweepy.API(auth)  # media upload only lives on v1.1
-
-    client_v2 = tweepy.Client(
-        consumer_key=os.environ["X_API_KEY"],
-        consumer_secret=os.environ["X_API_SECRET"],
-        access_token=os.environ["X_ACCESS_TOKEN"],
-        access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"],
-    )
+    api_v1 = x_api.v1_api()  # media upload and alt text only live on v1.1
+    client_v2 = x_api.v2_client()
     return api_v1, client_v2
 
 
